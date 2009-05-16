@@ -8,7 +8,7 @@ it under the terms of the GNU General Public License version 2 as
 published by the Free Software Foundation.
 """
 
-import os
+
 import sys
 sys.path.append('/usr/lib/quicknote')
 
@@ -18,6 +18,7 @@ gettext.install('quicknote', unicode = 1)
 
 import libquicknote
 
+
 if __name__ == "__main__":
-	app = libquicknote.quicknoteclass()
+	app = libquicknote.QuicknoteProgram()
 	app.main()

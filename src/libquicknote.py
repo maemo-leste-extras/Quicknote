@@ -45,14 +45,14 @@ except NameError:
 	_ = lambda x: x
 
 
-class quicknoteclass(hildon.Program):
+class QuicknoteProgram(hildon.Program):
 
 	__pretty_app_name__ = "quicknote"
 	__app_name__ = "quicknote"
 	__version__ = "0.7.7"
 
 	def __init__(self):
-		super(quicknoteclass, self).__init__()
+		super(QuicknoteProgram, self).__init__()
 
 		home_dir = os.path.expanduser('~')
 		dblog = os.path.join(home_dir, "quicknote.log")
@@ -71,24 +71,25 @@ class quicknoteclass(hildon.Program):
 
 		if osso is not None:
 			self._osso_c = osso.Context(self.__app_name__, self.__version__, False)
-			self.device = osso.DeviceState(self._osso_c)
-			self.device.set_device_state_callback(self._on_device_state_change, 0)
+			self._deviceState = osso.DeviceState(self._osso_c)
+			self._deviceState.set_device_state_callback(self._on_device_state_change, 0)
 		else:
 			self._osso_c = None
+			self._deviceState = None
 
 		#Get the Main Window, and connect the "destroy" event
-		self.window = hildon.Window()
-		self.add_window(self.window)
+		self._window = hildon.Window()
+		self.add_window(self._window)
 
-		self.window.set_title(self.__pretty_app_name__)
-		self.window.connect("delete_event", self.delete_event)
-		self.window.connect("destroy", self.destroy)
-		self.window.connect("key-press-event", self.on_key_press)
-		self.window.connect("window-state-event", self.on_window_state_change)
-		self.window_in_fullscreen = False #The window isn't in full screen mode initially.
+		self._window.set_title(self.__pretty_app_name__)
+		self._window.connect("delete_event", self._on_delete_event)
+		self._window.connect("destroy", self._on_destroy)
+		self._window.connect("key-press-event", self._on_key_press)
+		self._window.connect("window-state-event", self._on_window_state_change)
+		self._window_in_fullscreen = False #The window isn't in full screen mode initially.
 
-		self.db = libspeichern.Speichern()
-		self.prepare_sync_dialog()
+		self._db = libspeichern.Speichern()
+		self._prepare_sync_dialog()
 
 		#Create GUI main vbox
 		vbox = gtk.VBox(homogeneous = False, spacing = 0)
@@ -102,15 +103,15 @@ class quicknoteclass(hildon.Program):
 
 		menu_items = gtk.MenuItem(_("SQL History"))
 		filemenu.append(menu_items)
-		menu_items.connect("activate", self.view_sql_history, None)
+		menu_items.connect("activate", self._on_view_sql_history, None)
 
 		menu_items = gtk.MenuItem(_("Sync notes"))
 		filemenu.append(menu_items)
-		menu_items.connect("activate", self.sync_notes, None)
+		menu_items.connect("activate", self._on_sync_notes, None)
 
 		menu_items = gtk.MenuItem(_("Quit"))
 		filemenu.append(menu_items)
-		menu_items.connect("activate", self.destroy, None)
+		menu_items.connect("activate", self._on_destroy, None)
 
 		file_menu = gtk.MenuItem(_("File"))
 		file_menu.show()
@@ -120,11 +121,11 @@ class quicknoteclass(hildon.Program):
 
 		menu_items = gtk.MenuItem(_("delete"))
 		categorymenu.append(menu_items)
-		menu_items.connect("activate", self.delete_Category, None)
+		menu_items.connect("activate", self._on_delete_category, None)
 
 		menu_items = gtk.MenuItem(_("move to category"))
 		categorymenu.append(menu_items)
-		menu_items.connect("activate", self.move_Category, None)
+		menu_items.connect("activate", self._on_move_category, None)
 
 		category_menu = gtk.MenuItem(_("Category"))
 		category_menu.show()
@@ -134,7 +135,7 @@ class quicknoteclass(hildon.Program):
 
 		menu_items = gtk.MenuItem(_("Word Wrap"))
 		viewmenu.append(menu_items)
-		menu_items.connect("activate", self.toggle_word_wrap, None)
+		menu_items.connect("activate", self._on_toggle_word_wrap, None)
 		self._wordWrapEnabled = False
 
 		view_menu = gtk.MenuItem(_("View"))
@@ -145,7 +146,7 @@ class quicknoteclass(hildon.Program):
 
 		menu_items = gtk.MenuItem(_("About"))
 		helpmenu.append(menu_items)
-		menu_items.connect("activate", self.show_about, None)
+		menu_items.connect("activate", self._on_show_about, None)
 
 		help_menu = gtk.MenuItem(_("Help"))
 		help_menu.show()
@@ -163,39 +164,42 @@ class quicknoteclass(hildon.Program):
 			menu = gtk.Menu()
 			for child in menu_bar.get_children():
 				child.reparent(menu)
-			self.window.set_menu(menu)
+			self._window.set_menu(menu)
 			menu_bar.destroy()
 		else:
 			vbox.pack_start(menu_bar, False, False, 0)
 
 		#Create GUI elements
-		self.topBox = libkopfzeile.Kopfzeile(self.db)
-		vbox.pack_start(self.topBox, False, False, 0)
+		self._topBox = libkopfzeile.Kopfzeile(self._db)
+		vbox.pack_start(self._topBox, False, False, 0)
 
-		self.notizen = libnotizen.Notizen(self.db, self.topBox)
-		vbox.pack_start(self.notizen, True, True, 0)
+		self._notizen = libnotizen.Notizen(self._db, self._topBox)
+		vbox.pack_start(self._notizen, True, True, 0)
 
-		self.window.add(vbox)
-		self.window.show_all()
-		self.toggle_word_wrap()
+		self._window.add(vbox)
+		self._window.show_all()
+		self._on_toggle_word_wrap()
+
+	def main(self):
+		gtk.main()
 
 	def set_db_file(self, widget = None, data = None):
-		dlg = hildon.FileChooserDialog(parent=self.window, action=gtk.FILE_CHOOSER_ACTION_SAVE)
+		dlg = hildon.FileChooserDialog(parent=self._window, action=gtk.FILE_CHOOSER_ACTION_SAVE)
 
-		if self.db.ladeDirekt('datenbank'):
-			dlg.set_filename(self.db.ladeDirekt('datenbank'))
+		if self._db.ladeDirekt('datenbank'):
+			dlg.set_filename(self._db.ladeDirekt('datenbank'))
 
 		dlg.set_title(_("Choose database file"))
 		if dlg.run() == gtk.RESPONSE_OK:
 			fileName = dlg.get_filename()
-			self.db.speichereDirekt('datenbank', fileName)
+			self._db.speichereDirekt('datenbank', fileName)
 
-			self.db.openDB()
-			self.topBox.load_categories()
-			self.notizen.load_notes()
+			self._db.openDB()
+			self._topBox.load_categories()
+			self._notizen.load_notes()
 			dlg.destroy()
 
-	def show_about(self, widget = None, data = None):
+	def _on_show_about(self, widget = None, data = None):
 		dialog = gtk.AboutDialog()
 		dialog.set_position(gtk.WIN_POS_CENTER)
 		dialog.set_name(self.__pretty_app_name__)
@@ -207,15 +211,15 @@ class quicknoteclass(hildon.Program):
 		dialog.run()
 		dialog.destroy()
 
-	def view_sql_history(self, widget = None, data = None, data2 = None):
+	def _on_view_sql_history(self, widget = None, data = None, data2 = None):
 		import libsqldialog
-		sqldiag = libsqldialog.sqlDialog(self.db)
+		sqldiag = libsqldialog.sqlDialog(self._db)
 		res = sqldiag.run()
 		sqldiag.hide()
 		if res == 444:
 			logging.info("exporting sql")
 
-			dlg = hildon.FileChooserDialog(parent=self.window, action=gtk.FILE_CHOOSER_ACTION_SAVE)
+			dlg = hildon.FileChooserDialog(parent=self._window, action=gtk.FILE_CHOOSER_ACTION_SAVE)
 
 			dlg.set_title(_("Select SQL export file"))
 			if dlg.run() == gtk.RESPONSE_OK:
@@ -227,8 +231,8 @@ class quicknoteclass(hildon.Program):
 
 		sqldiag.destroy()
 
-	def delete_Category(self, widget = None, data = None):
-		if self.topBox.get_category() == "%" or self.topBox.get_category() == "undefined":
+	def _on_delete_category(self, widget = None, data = None):
+		if self._topBox.get_category() == "%" or self._topBox.get_category() == "undefined":
 			mbox = gtk.MessageDialog(None, gtk.DIALOG_MODAL, gtk.MESSAGE_ERROR, gtk.BUTTONS_OK, _("This category can not be deleted"))
 			response = mbox.run()
 			mbox.hide()
@@ -241,24 +245,24 @@ class quicknoteclass(hildon.Program):
 		mbox.destroy()
 		if response == gtk.RESPONSE_YES:
 			sql = "UPDATE notes SET category = ? WHERE category = ?"
-			self.db.speichereSQL(sql, ("undefined", self.topBox.get_category()))
+			self._db.speichereSQL(sql, ("undefined", self._topBox.get_category()))
 			sql = "DELETE FROM categories WHERE liste = ?"
-			self.db.speichereSQL(sql, (self.topBox.get_category(), ))
-			model = self.topBox.categoryCombo.get_model()
-			pos = self.topBox.categoryCombo.get_active()
+			self._db.speichereSQL(sql, (self._topBox.get_category(), ))
+			model = self._topBox.categoryCombo.get_model()
+			pos = self._topBox.categoryCombo.get_active()
 			if (pos>1):
-				self.topBox.categoryCombo.remove_text(pos)
-				self.topBox.categoryCombo.set_active(0)
+				self._topBox.categoryCombo.remove_text(pos)
+				self._topBox.categoryCombo.set_active(0)
 
-	def move_Category(self, widget = None, data = None):
-		dialog = gtk.Dialog(_("Choose category"), self.window, gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT, gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+	def _on_move_category(self, widget = None, data = None):
+		dialog = gtk.Dialog(_("Choose category"), self._window, gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT, gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
 
 		dialog.set_position(gtk.WIN_POS_CENTER)
 		comboCategory = gtk.combo_box_new_text()
 
 		comboCategory.append_text('undefined')
 		sql = "SELECT id, liste FROM categories WHERE id = 0 ORDER BY liste"
-		rows = self.db.ladeSQL(sql)
+		rows = self._db.ladeSQL(sql)
 		for row in rows:
 			comboCategory.append_text(row[1])
 
@@ -269,52 +273,52 @@ class quicknoteclass(hildon.Program):
 
 		if dialog.run() == gtk.RESPONSE_ACCEPT:
 			n = comboCategory.get_active()
-			if -1 < n and self.notizen.noteId != -1:
+			if -1 < n and self._notizen.noteId != -1:
 				model = comboCategory.get_model()
 				active = comboCategory.get_active()
 				if active < 0:
 					return None
 				cat_id = model[active][0]
 
-				noteid, category, note = self.db.loadNote(self.notizen.noteId)
+				noteid, category, note = self._db.loadNote(self._notizen.noteId)
 				#print noteid, category, cat_id
-				self.db.saveNote(noteid, note, cat_id, pcdatum = None)
-				self.topBox.category_combo_changed()
+				self._db.saveNote(noteid, note, cat_id, pcdatum = None)
+				self._topBox.category_combo_changed()
 			else:
-				mbox = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL, gtk.MESSAGE_ERROR, gtk.BUTTONS_OK, _("No note selected."))
+				mbox = gtk.MessageDialog(self._window, gtk.DIALOG_MODAL, gtk.MESSAGE_ERROR, gtk.BUTTONS_OK, _("No note selected."))
 				response = mbox.run()
 				mbox.hide()
 				mbox.destroy()
 
 		dialog.destroy()
 
-	def sync_finished(self, data = None, data2 = None):
-		self.topBox.load_categories()
-		self.notizen.load_notes()
+	def _on_sync_finished(self, data = None, data2 = None):
+		self._topBox.load_categories()
+		self._notizen.load_notes()
 
-	def prepare_sync_dialog(self):
+	def _prepare_sync_dialog(self):
 		self.sync_dialog = gtk.Dialog(_("Sync"), None, gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
 
 		self.sync_dialog.set_position(gtk.WIN_POS_CENTER)
-		sync = libsync.Sync(self.db, self.window, 50504)
+		sync = libsync.Sync(self._db, self._window, 50504)
 		self.sync_dialog.vbox.pack_start(sync, True, True, 0)
 		self.sync_dialog.set_size_request(500, 350)
 		self.sync_dialog.vbox.show_all()
-		sync.connect("syncFinished", self.sync_finished)
+		sync.connect("syncFinished", self._on_sync_finished)
 
-	def sync_notes(self, widget = None, data = None):
+	def _on_sync_notes(self, widget = None, data = None):
 		self.sync_dialog.run()
 		self.sync_dialog.hide()
 
-	def toggle_word_wrap(self, *args):
+	def _on_toggle_word_wrap(self, *args):
 		self._wordWrapEnabled = not self._wordWrapEnabled
-		self.notizen.set_wordwrap(self._wordWrapEnabled)
+		self._notizen.set_wordwrap(self._wordWrapEnabled)
 
-	def delete_event(self, widget, event, data = None):
+	def _on_delete_event(self, widget, event, data = None):
 		return False
 
-	def destroy(self, widget = None, data = None):
-		self.db.close()
+	def _on_destroy(self, widget = None, data = None):
+		self._db.close()
 		if self._osso_c:
 			self._osso_c.close()
 		gtk.main_quit()
@@ -331,27 +335,24 @@ class quicknoteclass(hildon.Program):
 		if save_unsaved_data or shutdown:
 			pass
 
-	def on_window_state_change(self, widget, event, *args):
+	def _on_window_state_change(self, widget, event, *args):
 		if event.new_window_state & gtk.gdk.WINDOW_STATE_FULLSCREEN:
-			self.window_in_fullscreen = True
+			self._window_in_fullscreen = True
 		else:
-			self.window_in_fullscreen = False
+			self._window_in_fullscreen = False
 
-	def on_key_press(self, widget, event, *args):
+	def _on_key_press(self, widget, event, *args):
 		if event.keyval == gtk.keysyms.F6:
 			# The "Full screen" hardware key has been pressed 
-			if self.window_in_fullscreen:
-				self.window.unfullscreen ()
+			if self._window_in_fullscreen:
+				self._window.unfullscreen ()
 			else:
-				self.window.fullscreen ()
+				self._window.fullscreen ()
 		elif event.keyval == gtk.keysyms.F7:
 			# Zoom In
-			self.topBox.hide()
-			self.notizen.show_history_area(False)
+			self._topBox.hide()
+			self._notizen.show_history_area(False)
 		elif event.keyval == gtk.keysyms.F8:
 			# Zoom Out
-			self.topBox.show()
-			self.notizen.show_history_area(True)
-
-	def main(self):
-		gtk.main()
+			self._topBox.show()
+			self._notizen.show_history_area(True)
