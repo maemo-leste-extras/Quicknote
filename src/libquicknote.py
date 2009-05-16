@@ -347,9 +347,11 @@ class quicknoteclass(hildon.Program):
 		elif event.keyval == gtk.keysyms.F7:
 			# Zoom In
 			self.topBox.hide()
+			self.notizen.show_history_area(False)
 		elif event.keyval == gtk.keysyms.F8:
 			# Zoom Out
 			self.topBox.show()
+			self.notizen.show_history_area(True)
 
 	def main(self):
 		gtk.main()

@@ -17,6 +17,7 @@ __build__ = 0
 __changelog__ = '''
 0.7.7
  * Slight modification to note history dialog to make each note more distinguishable
+ * On zoom, also hiding the history status and button
 
 0.7.6
   * Line-wrap

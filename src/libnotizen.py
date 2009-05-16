@@ -81,17 +81,17 @@ class Notizen(gtk.HBox):
 		vbox = gtk.VBox(homogeneous = False, spacing = 0)
 		vbox.pack_start(frame, expand = True, fill = True, padding = 3)
 
-		hbox = gtk.HBox(homogeneous = False, spacing = 0)
+		self._historyBox = gtk.HBox(homogeneous = False, spacing = 0)
 
-		self._statusLabel = gtk.Label("Test")
-		self._statusLabel.set_alignment(0.0, 0.5)
-		hbox.pack_start(self._statusLabel, expand = True, fill = True, padding = 3)
+		self._historyStatusLabel = gtk.Label("Test")
+		self._historyStatusLabel.set_alignment(0.0, 0.5)
+		self._historyBox.pack_start(self._historyStatusLabel, expand = True, fill = True, padding = 3)
 
 		button = gtk.Button(_("History"))
 		button.connect("clicked", self._on_show_history, None)
-		hbox.pack_start(button, expand = True, fill = True, padding = 3)
+		self._historyBox.pack_start(button, expand = True, fill = True, padding = 3)
 
-		vbox.pack_start(hbox, expand = False, fill = True, padding = 3)
+		vbox.pack_start(self._historyBox, expand = False, fill = True, padding = 3)
 
 		self.pack_start(vbox, expand = True, fill = True, padding = 3)
 
@@ -106,27 +106,30 @@ class Notizen(gtk.HBox):
 			self._noteScrollWindow.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 			self._noteBodyView.set_wrap_mode(gtk.WRAP_NONE)
 
-	def _get_title(self, buf):
-		"""
-		@returns the title of the current note
-		"""
-		eol = buf.find("\n")
-		if -1 == eol:
-			eol = len(buf)
-		title = buf[:eol]
-		return title
+	def show_history_area(self, visible):
+		if visible:
+			self._historyBox.show()
+		else:
+			self._historyBox.hide()
 
-	def _on_note_changed(self, widget = None, data = None):
-		if self._pos == -1 or self.noteId == -1:
-			return
+	def load_notes(self, data = None):
+		logging.info("load_notes params: pos:"+str(self._pos)+" noteid:"+str(self.noteId))
+		self._noteslist.clear_items()
+		self._noteslist.append_item(_("new Note"), "new")
 
-		buf = self._noteBodyView.get_buffer().get_text(self._noteBodyView.get_buffer().get_start_iter(), self._noteBodyView.get_buffer().get_end_iter())
+		self._categoryName = self._topBox.get_category()
+		search = self._topBox.get_search_pattern()
+		notes = self._db.searchNotes(search, self._categoryName)
 
-		title = self._get_title(buf)
-		value, key = self._noteslist.get_item(self._pos)
+		if notes is not None:
+			for note in notes:
+				noteid, category, noteText = note
+				title = self._get_title(noteText)
+				self._noteslist.append_item(title, noteid)
 
-		if value != title:
-			self._noteslist.change_item(self._pos, title, self.noteId)
+		self.noteId = -1
+		self._pos = -1
+		self._noteBodyView.get_buffer().set_text("")
 
 	def save_note(self, widget = None, data = None, data2 = None):
 		logging.info("save_note params: pos:"+str(self._pos)+" noteid:"+str(self.noteId))
@@ -149,6 +152,16 @@ class Notizen(gtk.HBox):
 			self._db.save_note(self.noteId, buf, self._categoryName)
 
 		self._topBox.define_this_category()
+
+	def _get_title(self, buf):
+		"""
+		@returns the title of the current note
+		"""
+		eol = buf.find("\n")
+		if -1 == eol:
+			eol = len(buf)
+		title = buf[:eol]
+		return title
 
 	def _set_focus(self):
 		self._noteBodyView.grab_focus()
@@ -178,11 +191,23 @@ class Notizen(gtk.HBox):
 		else:
 			self._pos = pos
 			self.noteId, pcdatum, self._categoryName, self._noteBody = self._db.loadNote(key)
-			self._statusLabel.set_text(time.strftime(_("Last change: %d.%m.%y %H:%M"), time.localtime(pcdatum)))
+			self._historyStatusLabel.set_text(time.strftime(_("Last change: %d.%m.%y %H:%M"), time.localtime(pcdatum)))
 			buf = self._noteBodyView.get_buffer()
 			buf.set_text(self._noteBody)
 
 		gobject.timeout_add(200, self._set_focus)
+
+	def _on_note_changed(self, widget = None, data = None):
+		if self._pos == -1 or self.noteId == -1:
+			return
+
+		buf = self._noteBodyView.get_buffer().get_text(self._noteBodyView.get_buffer().get_start_iter(), self._noteBodyView.get_buffer().get_end_iter())
+
+		title = self._get_title(buf)
+		value, key = self._noteslist.get_item(self._pos)
+
+		if value != title:
+			self._noteslist.change_item(self._pos, title, self.noteId)
 
 	def _on_add_note(self, widget = None, data = None):
 		self._update_noteslist("new")
@@ -200,25 +225,6 @@ class Notizen(gtk.HBox):
 			self._noteslist.remove_item(self._pos)
 			self._pos = -1
 			self._noteBodyView.get_buffer().set_text("")
-
-	def load_notes(self, data = None):
-		logging.info("load_notes params: pos:"+str(self._pos)+" noteid:"+str(self.noteId))
-		self._noteslist.clear_items()
-		self._noteslist.append_item(_("new Note"), "new")
-
-		self._categoryName = self._topBox.get_category()
-		search = self._topBox.get_search_pattern()
-		notes = self._db.searchNotes(search, self._categoryName)
-
-		if notes is not None:
-			for note in notes:
-				noteid, category, noteText = note
-				title = self._get_title(noteText)
-				self._noteslist.append_item(title, noteid)
-
-		self.noteId = -1
-		self._pos = -1
-		self._noteBodyView.get_buffer().set_text("")
 
 	def _on_show_history(self, widget = None, data = None, label = None):
 		if self.noteId == -1:
