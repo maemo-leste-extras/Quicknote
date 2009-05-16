@@ -87,15 +87,13 @@ class Kopfzeile(gtk.HBox):
 		i = 0
 		active = -1
 		cats = []
-		while i < n:
-			if (model[i][0] == category):
-				#self.categoryCombo.set_active(i)
+		for i, row in enumerate(model):
+			if row[0] == category:
 				active = i
-			if (model[i][0]!= "%"):
-				cats.append(model[i][0])
-			i += 1
+			if row[0] != "%":
+				cats.append(row[0])
 
-		if (active == -1) and (category!= "%"):
+		if active == -1 and category != "%":
 			self.categoryCombo.append_text(category)
 			sql = "INSERT INTO categories  (id, liste) VALUES (0, ?)"
 			self._db.speichereSQL(sql, (category, ))
