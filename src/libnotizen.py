@@ -39,7 +39,7 @@ class Notizen(gtk.HBox):
 		logging.info("libnotizen, init")
 
 		self._noteslist = simple_list.SimpleList()
-		self._noteslist.set_eventfunction__cursor_changed(self._update_noteslist)
+		self._noteslist.set_eventfunction_cursor_changed(self._update_noteslist)
 
 		self._noteslist.set_size_request(250, -1)
 
@@ -143,11 +143,11 @@ class Notizen(gtk.HBox):
 		if self._pos == -1 or self.noteId == -1:
 			self._pos = -1
 			self.noteId = str(uuid.uuid4())
-			self._db.save_note(self.noteId, buf, self._categoryName)
+			self._db.saveNote(self.noteId, buf, self._categoryName)
 			self._noteslist.append_item(self._get_title(buf), self.noteId)
 			self._pos = self._noteslist.select_last_item()
 		else:
-			self._db.save_note(self.noteId, buf, self._categoryName)
+			self._db.saveNote(self.noteId, buf, self._categoryName)
 
 		self._topBox.define_this_category()
 
@@ -181,7 +181,7 @@ class Notizen(gtk.HBox):
 		if key == "new" or data == "new":
 			#both methods supported click add note or new note (first one disabled)
 			self.noteId = str(uuid.uuid4())
-			self._db.save_note(self.noteId, "", self._categoryName)
+			self._db.saveNote(self.noteId, "", self._categoryName)
 			self._pos = -1
 			self._noteslist.append_item("", self.noteId)
 			self._noteBodyView.get_buffer().set_text("")
