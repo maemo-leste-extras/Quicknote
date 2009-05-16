@@ -7,8 +7,6 @@
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 2 as
 published by the Free Software Foundation.
-
-@todo Add hiding of the history button on zoom
 """
 
 import time
@@ -83,7 +81,7 @@ class Notizen(gtk.HBox):
 
 		self._historyBox = gtk.HBox(homogeneous = False, spacing = 0)
 
-		self._historyStatusLabel = gtk.Label("Test")
+		self._historyStatusLabel = gtk.Label(_("No History"))
 		self._historyStatusLabel.set_alignment(0.0, 0.5)
 		self._historyBox.pack_start(self._historyStatusLabel, expand = True, fill = True, padding = 3)
 

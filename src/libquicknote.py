@@ -8,8 +8,6 @@ This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 2 as
 published by the Free Software Foundation.
 
-@todo Add an edit menu with select all, cut, copy, and paste
-@todo Add undo directly into the UI
 @todo Add Note Export (txt File) and Export All (json dump?)
 @todo Save word wrap and zoom setting 
 """
