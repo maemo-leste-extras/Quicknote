@@ -192,7 +192,7 @@ class quicknoteclass(hildon.Program):
 
 			self.db.openDB()
 			self.topBox.load_categories()
-			self.notizen.loadNotes()
+			self.notizen.load_notes()
 			dlg.destroy()
 
 	def show_about(self, widget = None, data = None):
@@ -269,14 +269,14 @@ class quicknoteclass(hildon.Program):
 
 		if dialog.run() == gtk.RESPONSE_ACCEPT:
 			n = comboCategory.get_active()
-			if (n>-1) and (self.notizen.noteid!= -1):
+			if -1 < n and self.notizen.noteId != -1:
 				model = comboCategory.get_model()
 				active = comboCategory.get_active()
 				if active < 0:
 					return None
 				cat_id = model[active][0]
 
-				noteid, category, note = self.db.loadNote(self.notizen.noteid)
+				noteid, category, note = self.db.loadNote(self.notizen.noteId)
 				#print noteid, category, cat_id
 				self.db.saveNote(noteid, note, cat_id, pcdatum = None)
 				self.topBox.category_combo_changed()
@@ -290,7 +290,7 @@ class quicknoteclass(hildon.Program):
 
 	def sync_finished(self, data = None, data2 = None):
 		self.topBox.load_categories()
-		self.notizen.loadNotes()
+		self.notizen.load_notes()
 
 	def prepare_sync_dialog(self):
 		self.sync_dialog = gtk.Dialog(_("Sync"), None, gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))

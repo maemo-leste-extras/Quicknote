@@ -30,133 +30,136 @@ except NameError:
 class Notizen(gtk.HBox):
 
 	def __init__(self, db, topBox):
-		self.db = db
-		self.topBox = topBox
-		self.noteid = -1
-		self.pos = -1
-		self.note = None #Last notetext
-		self.category = ""
+		self._db = db
+		self._topBox = topBox
+		self.noteId = -1
+		self._pos = -1
+		self._noteBody = None #Last notetext
+		self._categoryName = ""
 
 		gtk.HBox.__init__(self, homogeneous = False, spacing = 0)
 		logging.info("libnotizen, init")
 
-		self.noteslist = simple_list.SimpleList()
-		self.noteslist.set_eventfunction__cursor_changed(self.noteslist_changed)
+		self._noteslist = simple_list.SimpleList()
+		self._noteslist.set_eventfunction__cursor_changed(self._update_noteslist)
 
-		self.noteslist.set_size_request(250, -1)
+		self._noteslist.set_size_request(250, -1)
 
 		vbox = gtk.VBox(homogeneous = False, spacing = 0)
 
 		frame = gtk.Frame(_("Titles"))
-		frame.add(self.noteslist)
+		frame.add(self._noteslist)
 		vbox.pack_start(frame, expand = True, fill = True, padding = 3)
 
 		buttonHBox = gtk.HBox()
 		vbox.pack_start(buttonHBox, expand = False, fill = True, padding = 3)
 
 		button = gtk.Button(stock = gtk.STOCK_ADD)
-		button.connect("clicked", self.add_note, None)
+		button.connect("clicked", self._on_add_note, None)
 		buttonHBox.pack_start(button, expand = True, fill = True, padding = 3)
 
 		button = gtk.Button(stock = gtk.STOCK_DELETE)
-		button.connect("clicked", self.del_note, None)
+		button.connect("clicked", self._on_delete_note, None)
 		buttonHBox.pack_start(button, expand = True, fill = True, padding = 3)
 
 		self.pack_start(vbox, expand = False, fill = True, padding = 3)
 
-		self.textviewNote = gtk.TextView()
-		self.textviewNote.connect("focus-out-event", self.saveNote, "focus-out-event")
-		buf = self.textviewNote.get_buffer()
+		self._noteBodyView = gtk.TextView()
+		self._noteBodyView.connect("focus-out-event", self.save_note, "focus-out-event")
+		buf = self._noteBodyView.get_buffer()
 		buf.set_text("")
-		buf.connect("changed", self.noteChanged, None)
+		buf.connect("changed", self._on_note_changed, None)
 
 		#self.textviewNotiz.set_size_request(-1, 50)
-		self.scrolled_window = gtk.ScrolledWindow()
-		self.scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-		self.scrolled_window.add(self.textviewNote)
+		self._noteScrollWindow = gtk.ScrolledWindow()
+		self._noteScrollWindow.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+		self._noteScrollWindow.add(self._noteBodyView)
 
 		frame = gtk.Frame(_("Note"))
-		frame.add(self.scrolled_window)
+		frame.add(self._noteScrollWindow)
 
 		vbox = gtk.VBox(homogeneous = False, spacing = 0)
 		vbox.pack_start(frame, expand = True, fill = True, padding = 3)
 
 		hbox = gtk.HBox(homogeneous = False, spacing = 0)
 
-		self.statuslabel = gtk.Label("Test")
-		self.statuslabel.set_alignment(0.0, 0.5)
-		hbox.pack_start(self.statuslabel, expand = True, fill = True, padding = 3)
+		self._statusLabel = gtk.Label("Test")
+		self._statusLabel.set_alignment(0.0, 0.5)
+		hbox.pack_start(self._statusLabel, expand = True, fill = True, padding = 3)
 
 		button = gtk.Button(_("History"))
-		button.connect("clicked", self.show_history, None)
+		button.connect("clicked", self._on_show_history, None)
 		hbox.pack_start(button, expand = True, fill = True, padding = 3)
 
 		vbox.pack_start(hbox, expand = False, fill = True, padding = 3)
 
 		self.pack_start(vbox, expand = True, fill = True, padding = 3)
 
-		self.loadNotes()
-		self.topBox.connect("reload_notes", self.loadNotes)
+		self.load_notes()
+		self._topBox.connect("reload_notes", self.load_notes)
 
 	def set_wordwrap(self, enableWordWrap):
 		if enableWordWrap:
-			self.scrolled_window.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
-			self.textviewNote.set_wrap_mode(gtk.WRAP_WORD)
+			self._noteScrollWindow.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
+			self._noteBodyView.set_wrap_mode(gtk.WRAP_WORD)
 		else:
-			self.scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-			self.textviewNote.set_wrap_mode(gtk.WRAP_NONE)
+			self._noteScrollWindow.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+			self._noteBodyView.set_wrap_mode(gtk.WRAP_NONE)
 
-	def getTitle(self, buf):
+	def _get_title(self, buf):
+		"""
+		@returns the title of the current note
+		"""
 		eol = buf.find("\n")
 		if -1 == eol:
 			eol = len(buf)
 		title = buf[:eol]
 		return title
 
-	def noteChanged(self, widget = None, data = None):
-		if self.pos == -1 or self.noteid == -1:
+	def _on_note_changed(self, widget = None, data = None):
+		if self._pos == -1 or self.noteId == -1:
 			return
 
-		buf = self.textviewNote.get_buffer().get_text(self.textviewNote.get_buffer().get_start_iter(), self.textviewNote.get_buffer().get_end_iter())
+		buf = self._noteBodyView.get_buffer().get_text(self._noteBodyView.get_buffer().get_start_iter(), self._noteBodyView.get_buffer().get_end_iter())
 
-		title = self.getTitle(buf)
-		value, key = self.noteslist.get_item(self.pos)
+		title = self._get_title(buf)
+		value, key = self._noteslist.get_item(self._pos)
 
 		if value != title:
-			self.noteslist.change_item(self.pos, title, self.noteid)
+			self._noteslist.change_item(self._pos, title, self.noteId)
 
-	def saveNote(self, widget = None, data = None, data2 = None):
-		logging.info("saveNote params: pos:"+str(self.pos)+" noteid:"+str(self.noteid))
+	def save_note(self, widget = None, data = None, data2 = None):
+		logging.info("save_note params: pos:"+str(self._pos)+" noteid:"+str(self.noteId))
 		#print "params:", data, data2
-		buf = self.textviewNote.get_buffer().get_text(self.textviewNote.get_buffer().get_start_iter(), self.textviewNote.get_buffer().get_end_iter())
+		buf = self._noteBodyView.get_buffer().get_text(self._noteBodyView.get_buffer().get_start_iter(), self._noteBodyView.get_buffer().get_end_iter())
 		if buf is None or len(buf) == 0:
 			return
 
-		if buf == self.note:
+		if buf == self._noteBody:
 			return
 
 		logging.info("Saving note: "+buf)
-		if self.pos == -1 or self.noteid == -1:
-			self.pos = -1
-			self.noteid = str(uuid.uuid4())
-			self.db.saveNote(self.noteid, buf, self.category)
-			self.noteslist.append_item(self.getTitle(buf), self.noteid)
-			self.pos = self.noteslist.select_last_item()
+		if self._pos == -1 or self.noteId == -1:
+			self._pos = -1
+			self.noteId = str(uuid.uuid4())
+			self._db.save_note(self.noteId, buf, self._categoryName)
+			self._noteslist.append_item(self._get_title(buf), self.noteId)
+			self._pos = self._noteslist.select_last_item()
 		else:
-			self.db.saveNote(self.noteid, buf, self.category)
+			self._db.save_note(self.noteId, buf, self._categoryName)
 
-		self.topBox.define_this_category()
+		self._topBox.define_this_category()
 
-	def setFocus(self):
-		self.textviewNote.grab_focus()
+	def _set_focus(self):
+		self._noteBodyView.grab_focus()
 		return False
 
-	def noteslist_changed(self, data = None, data2 = None):
-		if self.pos != -1:
-			self.saveNote()
+	def _update_noteslist(self, data = None, data2 = None):
+		if self._pos != -1:
+			self.save_note()
 
 		try:
-			(pos, key, value) = self.noteslist.get_selection_data()
+			(pos, key, value) = self._noteslist.get_selection_data()
 			if (pos == -1):
 				return
 		except StandardError:
@@ -166,66 +169,66 @@ class Notizen(gtk.HBox):
 
 		if key == "new" or data == "new":
 			#both methods supported click add note or new note (first one disabled)
-			self.noteid = str(uuid.uuid4())
-			self.db.saveNote(self.noteid, "", self.category)
-			self.pos = -1
-			self.noteslist.append_item("", self.noteid)
-			self.textviewNote.get_buffer().set_text("")
-			self.pos = self.noteslist.select_last_item()
+			self.noteId = str(uuid.uuid4())
+			self._db.save_note(self.noteId, "", self._categoryName)
+			self._pos = -1
+			self._noteslist.append_item("", self.noteId)
+			self._noteBodyView.get_buffer().set_text("")
+			self._pos = self._noteslist.select_last_item()
 		else:
-			self.pos = pos
-			self.noteid, pcdatum, self.category, self.note = self.db.loadNote(key)
-			self.statuslabel.set_text(time.strftime(_("Last change: %d.%m.%y %H:%M"), time.localtime(pcdatum)))
-			buf = self.textviewNote.get_buffer()
-			buf.set_text(self.note)
+			self._pos = pos
+			self.noteId, pcdatum, self._categoryName, self._noteBody = self._db.loadNote(key)
+			self._statusLabel.set_text(time.strftime(_("Last change: %d.%m.%y %H:%M"), time.localtime(pcdatum)))
+			buf = self._noteBodyView.get_buffer()
+			buf.set_text(self._noteBody)
 
-		gobject.timeout_add(200, self.setFocus)
+		gobject.timeout_add(200, self._set_focus)
 
-	def add_note(self, widget = None, data = None):
-		self.noteslist_changed("new")
+	def _on_add_note(self, widget = None, data = None):
+		self._update_noteslist("new")
 
-	def del_note(self, widget = None, data = None):
-		if (self.noteid == -1):
+	def _on_delete_note(self, widget = None, data = None):
+		if (self.noteId == -1):
 			return
 		mbox = gtk.MessageDialog(None, gtk.DIALOG_MODAL, gtk.MESSAGE_WARNING, gtk.BUTTONS_YES_NO, _("Really delete?"))
 		response = mbox.run()
 		mbox.hide()
 		mbox.destroy()
 		if response == gtk.RESPONSE_YES:
-			self.db.delNote(self.noteid)
-			self.noteid = -1
-			self.noteslist.remove_item(self.pos)
-			self.pos = -1
-			self.textviewNote.get_buffer().set_text("")
+			self._db.delNote(self.noteId)
+			self.noteId = -1
+			self._noteslist.remove_item(self._pos)
+			self._pos = -1
+			self._noteBodyView.get_buffer().set_text("")
 
-	def loadNotes(self, data = None):
-		logging.info("loadNotes params: pos:"+str(self.pos)+" noteid:"+str(self.noteid))
-		self.noteslist.clear_items()
-		self.noteslist.append_item(_("new Note"), "new")
+	def load_notes(self, data = None):
+		logging.info("load_notes params: pos:"+str(self._pos)+" noteid:"+str(self.noteId))
+		self._noteslist.clear_items()
+		self._noteslist.append_item(_("new Note"), "new")
 
-		self.category = self.topBox.get_category()
-		search = self.topBox.get_search_pattern()
-		notes = self.db.searchNotes(search, self.category)
+		self._categoryName = self._topBox.get_category()
+		search = self._topBox.get_search_pattern()
+		notes = self._db.searchNotes(search, self._categoryName)
 
 		if notes is not None:
 			for note in notes:
 				noteid, category, noteText = note
-				title = self.getTitle(noteText)
-				self.noteslist.append_item(title, noteid)
+				title = self._get_title(noteText)
+				self._noteslist.append_item(title, noteid)
 
-		self.noteid = -1
-		self.pos = -1
-		self.textviewNote.get_buffer().set_text("")
+		self.noteId = -1
+		self._pos = -1
+		self._noteBodyView.get_buffer().set_text("")
 
-	def show_history(self, widget = None, data = None, label = None):
-		if self.noteid == -1:
+	def _on_show_history(self, widget = None, data = None, label = None):
+		if self.noteId == -1:
 			mbox =  gtk.MessageDialog(None, gtk.DIALOG_MODAL, gtk.MESSAGE_INFO, gtk.BUTTONS_OK, _("No note selected."))
 			response = mbox.run()
 			mbox.hide()
 			mbox.destroy()
 			return
 
-		rows = self.db.getNoteHistory(self.noteid)
+		rows = self._db.getNoteHistory(self.noteId)
 
 		import libhistory
 		dialog = libhistory.Dialog()
@@ -242,11 +245,11 @@ class Notizen(gtk.HBox):
 
 		if dialog.run() == gtk.RESPONSE_ACCEPT:
 			print "saving"
-			self.saveNote()
+			self.save_note()
 			data = dialog.get_selected_row()
 			if data is not None:
-				self.db.speichereSQL(data[2], data[3].split(" <<Tren-ner>> "), rowid = self.noteid)
+				self._db.speichereSQL(data[2], data[3].split(" <<Tren-ner>> "), rowid = self.noteId)
 				logging.info("loading History")
-				self.noteslist_changed()
+				self._update_noteslist()
 
 		dialog.destroy()
