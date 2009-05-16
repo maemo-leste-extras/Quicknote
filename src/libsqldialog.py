@@ -22,22 +22,26 @@ except NameError:
 	_ = lambda x: x
 
 
-class sqlDialog(gtk.Dialog):
+class SqlDialog(gtk.Dialog):
+
+	EXPORT_RESPONSE = 444
 
 	def __init__(self, db):
 		self.db = db
 
 		logging.info("sqldialog, init")
 
-		gtk.Dialog.__init__(self, _("SQL History (the past two days):"), None, gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+		gtk.Dialog.__init__(self, _("SQL History (the past two days):"), None, gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT)
 
-		self.add_button("Export", 444)
+		self.add_button(_("Export"), self.EXPORT_RESPONSE)
+		self.add_button(gtk.STOCK_OK, gtk.RESPONSE_ACCEPT)
 		self.set_position(gtk.WIN_POS_CENTER)
 
 		self.liststore = gtk.ListStore(str, str, str)
 
 		# create the TreeView using liststore
 		self.treeview = gtk.TreeView(self.liststore)
+		self.treeview.set_rules_hint(True)
 
 		# create a CellRenderers to render the data
 		self.cell1 = gtk.CellRendererText()

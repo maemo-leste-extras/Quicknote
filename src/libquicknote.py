@@ -244,10 +244,10 @@ class QuicknoteProgram(hildon.Program):
 
 	def _on_view_sql_history(self, widget = None, data = None, data2 = None):
 		import libsqldialog
-		sqldiag = libsqldialog.sqlDialog(self._db)
+		sqldiag = libsqldialog.SqlDialog(self._db)
 		res = sqldiag.run()
 		sqldiag.hide()
-		if res == 444:
+		if res == sqldiag.EXPORT_RESPONSE:
 			logging.info("exporting sql")
 
 			dlg = hildon.FileChooserDialog(parent=self._window, action=gtk.FILE_CHOOSER_ACTION_SAVE)

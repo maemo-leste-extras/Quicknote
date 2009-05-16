@@ -16,8 +16,9 @@ __version__ = "0.7.7"
 __build__ = 0
 __changelog__ = '''
 0.7.7
- * Slight modification to note history dialog to make each note more distinguishable
+ * Slight modifications to the note history and SQL dialogs
  * On zoom, also hiding the history status and button
+ * Touched up the note list, making it ellipsize at the end rather than scroll
 
 0.7.6
   * Line-wrap
