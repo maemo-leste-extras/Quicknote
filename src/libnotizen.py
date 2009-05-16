@@ -145,7 +145,7 @@ class Notizen(gtk.HBox):
 		else:
 			self.db.saveNote(self.noteid, buf, self.category)
 
-		self.topBox.defineThisCategory()
+		self.topBox.define_this_category()
 
 	def setFocus(self):
 		self.textviewNote.grab_focus()
@@ -203,8 +203,8 @@ class Notizen(gtk.HBox):
 		self.noteslist.clear_items()
 		self.noteslist.append_item(_("new Note"), "new")
 
-		self.category = self.topBox.getCategory()
-		search = self.topBox.getSearchPattern()
+		self.category = self.topBox.get_category()
+		search = self.topBox.get_search_pattern()
 		notes = self.db.searchNotes(search, self.category)
 
 		if notes is not None:

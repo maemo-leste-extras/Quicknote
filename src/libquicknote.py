@@ -191,7 +191,7 @@ class quicknoteclass(hildon.Program):
 			self.db.speichereDirekt('datenbank', fileName)
 
 			self.db.openDB()
-			self.topBox.loadCategories()
+			self.topBox.load_categories()
 			self.notizen.loadNotes()
 			dlg.destroy()
 
@@ -228,7 +228,7 @@ class quicknoteclass(hildon.Program):
 		sqldiag.destroy()
 
 	def delete_Category(self, widget = None, data = None):
-		if (self.topBox.getCategory() == "%") or (self.topBox.getCategory() == "undefined"):
+		if self.topBox.get_category() == "%" or self.topBox.get_category() == "undefined":
 			mbox = gtk.MessageDialog(None, gtk.DIALOG_MODAL, gtk.MESSAGE_ERROR, gtk.BUTTONS_OK, _("This category can not be deleted"))
 			response = mbox.run()
 			mbox.hide()
@@ -241,14 +241,14 @@ class quicknoteclass(hildon.Program):
 		mbox.destroy()
 		if response == gtk.RESPONSE_YES:
 			sql = "UPDATE notes SET category = ? WHERE category = ?"
-			self.db.speichereSQL(sql, ("undefined", self.topBox.getCategory()))
+			self.db.speichereSQL(sql, ("undefined", self.topBox.get_category()))
 			sql = "DELETE FROM categories WHERE liste = ?"
-			self.db.speichereSQL(sql, (self.topBox.getCategory(), ))
-			model = self.topBox.comboCategory.get_model()
-			pos = self.topBox.comboCategory.get_active()
+			self.db.speichereSQL(sql, (self.topBox.get_category(), ))
+			model = self.topBox.categoryCombo.get_model()
+			pos = self.topBox.categoryCombo.get_active()
 			if (pos>1):
-				self.topBox.comboCategory.remove_text(pos)
-				self.topBox.comboCategory.set_active(0)
+				self.topBox.categoryCombo.remove_text(pos)
+				self.topBox.categoryCombo.set_active(0)
 
 	def move_Category(self, widget = None, data = None):
 		dialog = gtk.Dialog(_("Choose category"), self.window, gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT, gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
@@ -279,7 +279,7 @@ class quicknoteclass(hildon.Program):
 				noteid, category, note = self.db.loadNote(self.notizen.noteid)
 				#print noteid, category, cat_id
 				self.db.saveNote(noteid, note, cat_id, pcdatum = None)
-				self.topBox.comboCategoryChanged()
+				self.topBox.category_combo_changed()
 			else:
 				mbox = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL, gtk.MESSAGE_ERROR, gtk.BUTTONS_OK, _("No note selected."))
 				response = mbox.run()
@@ -289,7 +289,7 @@ class quicknoteclass(hildon.Program):
 		dialog.destroy()
 
 	def sync_finished(self, data = None, data2 = None):
-		self.topBox.loadCategories()
+		self.topBox.load_categories()
 		self.notizen.loadNotes()
 
 	def prepare_sync_dialog(self):

@@ -29,8 +29,8 @@ class Kopfzeile(gtk.HBox):
 	}
 
 	def __init__(self, db):
-		self.lastCategory = ""
-		self.db = db
+		self._lastCategory = ""
+		self._db = db
 
 		gtk.HBox.__init__(self, homogeneous = False, spacing = 3)
 		logging.info("libkopfzeile, init")
@@ -41,10 +41,10 @@ class Kopfzeile(gtk.HBox):
 		label = gtk.Label(_("Category:  "))
 		categoryHBox.pack_start(label, expand = False, fill = True, padding = 0)
 
-		self.comboCategory = gtk.combo_box_entry_new_text()
-		categoryHBox.pack_start(self.comboCategory, expand = True, fill = True, padding = 0)
-		self.loadCategories()
-		self.comboCategory.connect("changed", self.comboCategoryChanged, None)
+		self.categoryCombo = gtk.combo_box_entry_new_text()
+		categoryHBox.pack_start(self.categoryCombo, expand = True, fill = True, padding = 0)
+		self.load_categories()
+		self.categoryCombo.connect("changed", self.category_combo_changed, None)
 
 		searchHBox = gtk.HBox()
 		self.pack_start(searchHBox, expand = True, fill = True, padding = 0)
@@ -52,91 +52,91 @@ class Kopfzeile(gtk.HBox):
 		label = gtk.Label(_("Search:  "))
 		searchHBox.pack_start(label, expand = False, fill = True, padding = 0)
 
-		self.searchEntry = gtk.Entry()
-		searchHBox.pack_start(self.searchEntry, expand = True, fill = True, padding = 0)
-		self.searchEntry.connect("changed", self.searchEntryChanged, None)
+		self._searchEntry = gtk.Entry()
+		searchHBox.pack_start(self._searchEntry, expand = True, fill = True, padding = 0)
+		self._searchEntry.connect("changed", self.search_entry_changed, None)
 
-	def comboCategoryChanged(self, widget = None, data = None):
+	def category_combo_changed(self, widget = None, data = None):
 		logging.debug("comboCategoryChanged")
-		if self.lastCategory != self.comboCategory.get_active():
+		if self._lastCategory != self.categoryCombo.get_active():
 			sql = "UPDATE categories SET liste = ? WHERE id = 1"
-			self.db.speichereSQL(sql, (self.comboCategory.get_active(), ))
+			self._db.speichereSQL(sql, (self.categoryCombo.get_active(), ))
 
 		self.emit("reload_notes")
 
-	def searchEntryChanged(self, widget = None, data = None):
-		logging.debug("searchEntryChanged")
+	def search_entry_changed(self, widget = None, data = None):
+		logging.debug("search_entry_changed")
 		self.emit("reload_notes")
 
-	def getCategory(self):
-		entry = self.comboCategory.get_child()
+	def get_category(self):
+		entry = self.categoryCombo.get_child()
 		category = entry.get_text()
 		if category == _("all"):
 			category = "%"
 		if category == "":
 			category = "undefined"
-			self.comboCategory.set_active(1)
-			self.comboCategory.show()
+			self.categoryCombo.set_active(1)
+			self.categoryCombo.show()
 		return category
 
-	def defineThisCategory(self):
-		category = self.getCategory()
+	def define_this_category(self):
+		category = self.get_category()
 
-		model = self.comboCategory.get_model()
-		n = len(self.comboCategory.get_model())
+		model = self.categoryCombo.get_model()
+		n = len(self.categoryCombo.get_model())
 		i = 0
 		active = -1
 		cats = []
 		while i < n:
 			if (model[i][0] == category):
-				#self.comboCategory.set_active(i)
+				#self.categoryCombo.set_active(i)
 				active = i
 			if (model[i][0]!= "%"):
 				cats.append(model[i][0])
 			i += 1
 
 		if (active == -1) and (category!= "%"):
-			self.comboCategory.append_text(category)
+			self.categoryCombo.append_text(category)
 			sql = "INSERT INTO categories  (id, liste) VALUES (0, ?)"
-			self.db.speichereSQL(sql, (category, ))
-			self.comboCategory.set_active(i)
+			self._db.speichereSQL(sql, (category, ))
+			self.categoryCombo.set_active(i)
 
-	def getSearchPattern(self):
-		return self.searchEntry.get_text()
+	def get_search_pattern(self):
+		return self._searchEntry.get_text()
 
-	def loadCategories(self):
+	def load_categories(self):
 		sql = "CREATE TABLE categories (id TEXT , liste TEXT)"
-		self.db.speichereSQL(sql)
+		self._db.speichereSQL(sql)
 
 		sql = "SELECT id, liste FROM categories WHERE id = 0 ORDER BY liste"
-		rows = self.db.ladeSQL(sql)
+		rows = self._db.ladeSQL(sql)
 		cats = []
 		if rows is not None and 0 < len(rows):
 			for row in rows:
 				cats.append(row[1])
 
 		sql = "SELECT * FROM categories WHERE id = 1"
-		rows = self.db.ladeSQL(sql)
+		rows = self._db.ladeSQL(sql)
 		if rows is None or len(rows) == 0:
 			sql = "INSERT INTO categories (id, liste) VALUES (1, 1)"
-			self.db.speichereSQL(sql)
+			self._db.speichereSQL(sql)
 
-		#self.comboCategory.clear()
-		while 0 < len(self.comboCategory.get_model()):
-			self.comboCategory.remove_text(0)
+		#self.categoryCombo.clear()
+		while 0 < len(self.categoryCombo.get_model()):
+			self.categoryCombo.remove_text(0)
 
-		self.comboCategory.append_text(_('all'))
-		self.comboCategory.append_text('undefined')
+		self.categoryCombo.append_text(_('all'))
+		self.categoryCombo.append_text('undefined')
 
 		if cats is not None and 0 < len(cats):
 			for cat in cats:
-				self.comboCategory.append_text(cat)
+				self.categoryCombo.append_text(cat)
 
 		sql = "SELECT * FROM categories WHERE id = 1"
-		rows = self.db.ladeSQL(sql)
+		rows = self._db.ladeSQL(sql)
 		if rows is not None and 0 < len(rows):
-			self.comboCategory.set_active(int(rows[0][1]))
+			self.categoryCombo.set_active(int(rows[0][1]))
 		else:
-			self.comboCategory.set_active(1)
+			self.categoryCombo.set_active(1)
 
-		self.lastCategory = self.comboCategory.get_active()
+		self._lastCategory = self.categoryCombo.get_active()
