@@ -118,11 +118,11 @@ class QuicknoteProgram(hildon.Program):
 
 		categorymenu = gtk.Menu()
 
-		menu_items = gtk.MenuItem(_("delete"))
+		menu_items = gtk.MenuItem(_("Delete"))
 		categorymenu.append(menu_items)
 		menu_items.connect("activate", self._on_delete_category, None)
 
-		menu_items = gtk.MenuItem(_("move to category"))
+		menu_items = gtk.MenuItem(_("Move To Category"))
 		categorymenu.append(menu_items)
 		menu_items.connect("activate", self._on_move_category, None)
 
