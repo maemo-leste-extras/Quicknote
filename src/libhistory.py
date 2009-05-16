@@ -22,48 +22,59 @@ except NameError:
 class Dialog(gtk.Dialog):
 
 	def __init__(self, daten = None):
-		gtk.Dialog.__init__(self, _("History:"), None, gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT, gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+		super(Dialog, self).__init__(
+			_("History:"),
+			None,
+			gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+			(gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT, gtk.STOCK_OK, gtk.RESPONSE_ACCEPT),
+		)
 		self.set_position(gtk.WIN_POS_CENTER)
 
-		self.liststore = gtk.ListStore(int, str, str, str, str)
-		#pcdatum, datum, sql, param # param schön
+		self.noteHistory = gtk.ListStore(
+			int, #pcdatum
+			str, #datum
+			str, #sql
+			str, #param
+			str #param schön
+		)
 
 		# create the TreeView using liststore
-		self.treeview = gtk.TreeView(self.liststore)
+		self._historyView = gtk.TreeView(self.noteHistory)
+		self._historyView.set_rules_hint(True)
 		# create a CellRenderers to render the data
-		self.cell1 = gtk.CellRendererText()
-		self.cell2 = gtk.CellRendererText()
+		self._timestampCell = gtk.CellRendererText()
+		self._noteCell = gtk.CellRendererText()
 
 		# create the TreeViewColumns to display the data
-		self.tvcolumn1 = gtk.TreeViewColumn(_('Timestamp'))
-		self.tvcolumn2 = gtk.TreeViewColumn(_('Note'))
+		self._timestampColumn = gtk.TreeViewColumn(_('Timestamp'))
+		self._noteColumn = gtk.TreeViewColumn(_('Note'))
 		# add columns to treeview
-		self.treeview.append_column(self.tvcolumn1)
-		self.treeview.append_column(self.tvcolumn2)
+		self._historyView.append_column(self._timestampColumn)
+		self._historyView.append_column(self._noteColumn)
 
 		# add the cells to the columns - 2 in the first
-		self.tvcolumn1.pack_start(self.cell1, True)
-		self.tvcolumn2.pack_start(self.cell2, True)
-		self.tvcolumn1.set_attributes(self.cell1, text = 1) #Spalten setzten hier!!!!
-		self.tvcolumn2.set_attributes(self.cell2, text = 4)
+		self._timestampColumn.pack_start(self._timestampCell, True)
+		self._noteColumn.pack_start(self._noteCell, True)
+		self._timestampColumn.set_attributes(self._timestampCell, text = 1) #Spalten setzten hier!!!!
+		self._noteColumn.set_attributes(self._noteCell, text = 4)
 
-		self.treeview.set_reorderable(False)
+		self._historyView.set_reorderable(False)
 
 		scrolled_window = gtk.ScrolledWindow()
 		scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-		scrolled_window.add(self.treeview)
+		scrolled_window.add(self._historyView)
 		self.vbox.pack_start(scrolled_window, expand = True, fill = True, padding = 0)
 
-		self.liststore.clear()
+		self.noteHistory.clear()
 
 		if daten is not None:
 			for data in daten:
-				self.liststore.append(data)
+				self.noteHistory.append(data)
 
 	def get_selected_row(self):
-		path = self.treeview.get_cursor()[0]
+		path = self._historyView.get_cursor()[0]
 		if path is None or path == "":
 			return None
 
-		iter1 = self.treeview.get_model().get_iter(path)
-		return self.treeview.get_model().get(iter1, 0, 1, 2, 3, 4)
+		iter1 = self._historyView.get_model().get_iter(path)
+		return self._historyView.get_model().get(iter1, 0, 1, 2, 3, 4)

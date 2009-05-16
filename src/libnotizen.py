@@ -232,12 +232,10 @@ class Notizen(gtk.HBox):
 
 		lastNoteStr = ""
 		for row in rows:
-			#for x in row:
-			#	print x
 			daten = row[4][1]
-			if (daten != "")and(lastNoteStr != daten):
+			if daten != "" and lastNoteStr != daten:
 				lastNoteStr = daten
-				dialog.liststore.append([row[0], row[1], row[2], row[3], daten+"\n"])
+				dialog.noteHistory.append([row[0], row[1], row[2], row[3], daten+"\n"])
 
 		dialog.vbox.show_all()
 		dialog.set_size_request(600, 380)
