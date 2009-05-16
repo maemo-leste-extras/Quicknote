@@ -12,9 +12,11 @@ __appname__ = "quicknote"
 __description__ = "Simple note taking application in a similar vein as PalmOS Memos"
 __author__ = "Christoph Wurstle"
 __email__ = "n800@axique.net"
-__version__ = "0.7.6"
-__build__ = 1
-__changelog__ = '''\
+__version__ = "0.7.7"
+__build__ = 0
+__changelog__ = '''
+0.7.7
+
 0.7.6
   * Line-wrap
   * Zoom

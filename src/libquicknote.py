@@ -49,7 +49,7 @@ class quicknoteclass(hildon.Program):
 
 	__pretty_app_name__ = "quicknote"
 	__app_name__ = "quicknote"
-	__version__ = "0.7.5"
+	__version__ = "0.7.7"
 
 	def __init__(self):
 		super(quicknoteclass, self).__init__()
