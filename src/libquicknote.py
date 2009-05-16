@@ -89,6 +89,7 @@ class QuicknoteProgram(hildon.Program):
 		self._window_in_fullscreen = False #The window isn't in full screen mode initially.
 
 		self._db = libspeichern.Speichern()
+		self._syncDialog = None
 		self._prepare_sync_dialog()
 
 		#Create GUI main vbox
@@ -199,17 +200,49 @@ class QuicknoteProgram(hildon.Program):
 			self._notizen.load_notes()
 			dlg.destroy()
 
-	def _on_show_about(self, widget = None, data = None):
-		dialog = gtk.AboutDialog()
-		dialog.set_position(gtk.WIN_POS_CENTER)
-		dialog.set_name(self.__pretty_app_name__)
-		dialog.set_version(self.__version__)
-		dialog.set_copyright("")
-		dialog.set_website("http://axique.de/index.php?f=Quicknote")
-		comments = _("%s is a note taking program; it is optimised for quick save and search of notes") % self.__pretty_app_name__
-		dialog.set_comments(comments)
-		dialog.run()
-		dialog.destroy()
+	def _prepare_sync_dialog(self):
+		self._syncDialog = gtk.Dialog(_("Sync"), None, gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+
+		self._syncDialog.set_position(gtk.WIN_POS_CENTER)
+		sync = libsync.Sync(self._db, self._window, 50504)
+		self._syncDialog.vbox.pack_start(sync, True, True, 0)
+		self._syncDialog.set_size_request(500, 350)
+		self._syncDialog.vbox.show_all()
+		sync.connect("syncFinished", self._on_sync_finished)
+
+	def _on_device_state_change(self, shutdown, save_unsaved_data, memory_low, system_inactivity, message, userData):
+		"""
+		For system_inactivity, we have no background tasks to pause
+
+		@note Hildon specific
+		"""
+		if memory_low:
+			gc.collect()
+
+		if save_unsaved_data or shutdown:
+			pass
+
+	def _on_window_state_change(self, widget, event, *args):
+		if event.new_window_state & gtk.gdk.WINDOW_STATE_FULLSCREEN:
+			self._window_in_fullscreen = True
+		else:
+			self._window_in_fullscreen = False
+
+	def _on_key_press(self, widget, event, *args):
+		if event.keyval == gtk.keysyms.F6:
+			# The "Full screen" hardware key has been pressed 
+			if self._window_in_fullscreen:
+				self._window.unfullscreen ()
+			else:
+				self._window.fullscreen ()
+		elif event.keyval == gtk.keysyms.F7:
+			# Zoom In
+			self._topBox.hide()
+			self._notizen.show_history_area(False)
+		elif event.keyval == gtk.keysyms.F8:
+			# Zoom Out
+			self._topBox.show()
+			self._notizen.show_history_area(True)
 
 	def _on_view_sql_history(self, widget = None, data = None, data2 = None):
 		import libsqldialog
@@ -230,29 +263,6 @@ class QuicknoteProgram(hildon.Program):
 				dlg.destroy()
 
 		sqldiag.destroy()
-
-	def _on_delete_category(self, widget = None, data = None):
-		if self._topBox.get_category() == "%" or self._topBox.get_category() == "undefined":
-			mbox = gtk.MessageDialog(None, gtk.DIALOG_MODAL, gtk.MESSAGE_ERROR, gtk.BUTTONS_OK, _("This category can not be deleted"))
-			response = mbox.run()
-			mbox.hide()
-			mbox.destroy()
-			return
-
-		mbox = gtk.MessageDialog(None, gtk.DIALOG_MODAL, gtk.MESSAGE_WARNING, gtk.BUTTONS_YES_NO, _("Are you sure to delete the current category?"))
-		response = mbox.run()
-		mbox.hide()
-		mbox.destroy()
-		if response == gtk.RESPONSE_YES:
-			sql = "UPDATE notes SET category = ? WHERE category = ?"
-			self._db.speichereSQL(sql, ("undefined", self._topBox.get_category()))
-			sql = "DELETE FROM categories WHERE liste = ?"
-			self._db.speichereSQL(sql, (self._topBox.get_category(), ))
-			model = self._topBox.categoryCombo.get_model()
-			pos = self._topBox.categoryCombo.get_active()
-			if (pos>1):
-				self._topBox.categoryCombo.remove_text(pos)
-				self._topBox.categoryCombo.set_active(0)
 
 	def _on_move_category(self, widget = None, data = None):
 		dialog = gtk.Dialog(_("Choose category"), self._window, gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT, gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
@@ -292,23 +302,36 @@ class QuicknoteProgram(hildon.Program):
 
 		dialog.destroy()
 
+	def _on_delete_category(self, widget = None, data = None):
+		if self._topBox.get_category() == "%" or self._topBox.get_category() == "undefined":
+			mbox = gtk.MessageDialog(None, gtk.DIALOG_MODAL, gtk.MESSAGE_ERROR, gtk.BUTTONS_OK, _("This category can not be deleted"))
+			response = mbox.run()
+			mbox.hide()
+			mbox.destroy()
+			return
+
+		mbox = gtk.MessageDialog(None, gtk.DIALOG_MODAL, gtk.MESSAGE_WARNING, gtk.BUTTONS_YES_NO, _("Are you sure to delete the current category?"))
+		response = mbox.run()
+		mbox.hide()
+		mbox.destroy()
+		if response == gtk.RESPONSE_YES:
+			sql = "UPDATE notes SET category = ? WHERE category = ?"
+			self._db.speichereSQL(sql, ("undefined", self._topBox.get_category()))
+			sql = "DELETE FROM categories WHERE liste = ?"
+			self._db.speichereSQL(sql, (self._topBox.get_category(), ))
+			model = self._topBox.categoryCombo.get_model()
+			pos = self._topBox.categoryCombo.get_active()
+			if (pos>1):
+				self._topBox.categoryCombo.remove_text(pos)
+				self._topBox.categoryCombo.set_active(0)
+
 	def _on_sync_finished(self, data = None, data2 = None):
 		self._topBox.load_categories()
 		self._notizen.load_notes()
 
-	def _prepare_sync_dialog(self):
-		self.sync_dialog = gtk.Dialog(_("Sync"), None, gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
-
-		self.sync_dialog.set_position(gtk.WIN_POS_CENTER)
-		sync = libsync.Sync(self._db, self._window, 50504)
-		self.sync_dialog.vbox.pack_start(sync, True, True, 0)
-		self.sync_dialog.set_size_request(500, 350)
-		self.sync_dialog.vbox.show_all()
-		sync.connect("syncFinished", self._on_sync_finished)
-
 	def _on_sync_notes(self, widget = None, data = None):
-		self.sync_dialog.run()
-		self.sync_dialog.hide()
+		self._syncDialog.run()
+		self._syncDialog.hide()
 
 	def _on_toggle_word_wrap(self, *args):
 		self._wordWrapEnabled = not self._wordWrapEnabled
@@ -323,36 +346,14 @@ class QuicknoteProgram(hildon.Program):
 			self._osso_c.close()
 		gtk.main_quit()
 
-	def _on_device_state_change(self, shutdown, save_unsaved_data, memory_low, system_inactivity, message, userData):
-		"""
-		For system_inactivity, we have no background tasks to pause
-
-		@note Hildon specific
-		"""
-		if memory_low:
-			gc.collect()
-
-		if save_unsaved_data or shutdown:
-			pass
-
-	def _on_window_state_change(self, widget, event, *args):
-		if event.new_window_state & gtk.gdk.WINDOW_STATE_FULLSCREEN:
-			self._window_in_fullscreen = True
-		else:
-			self._window_in_fullscreen = False
-
-	def _on_key_press(self, widget, event, *args):
-		if event.keyval == gtk.keysyms.F6:
-			# The "Full screen" hardware key has been pressed 
-			if self._window_in_fullscreen:
-				self._window.unfullscreen ()
-			else:
-				self._window.fullscreen ()
-		elif event.keyval == gtk.keysyms.F7:
-			# Zoom In
-			self._topBox.hide()
-			self._notizen.show_history_area(False)
-		elif event.keyval == gtk.keysyms.F8:
-			# Zoom Out
-			self._topBox.show()
-			self._notizen.show_history_area(True)
+	def _on_show_about(self, widget = None, data = None):
+		dialog = gtk.AboutDialog()
+		dialog.set_position(gtk.WIN_POS_CENTER)
+		dialog.set_name(self.__pretty_app_name__)
+		dialog.set_version(self.__version__)
+		dialog.set_copyright("")
+		dialog.set_website("http://axique.de/index.php?f=Quicknote")
+		comments = _("%s is a note taking program; it is optimised for quick save and search of notes") % self.__pretty_app_name__
+		dialog.set_comments(comments)
+		dialog.run()
+		dialog.destroy()
