@@ -1,0 +1,226 @@
+# Russian translations for quicknote package
+# Copyright (C) 2008 THE quicknote'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the quicknote package.
+# Nikolay Logvinov <NLogvinov@gmail.com>, 2008.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: quicknote\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2008-06-03 16:25+0400\n"
+"PO-Revision-Date: 2008-06-03 15:38+0400\n"
+"Last-Translator: Nikolay Logvinov <NLogvinov@gmail.com>\n"
+"Language-Team: Russian\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+#
+# File: src/quicknoteclasses/libhistory.py, line: 30
+msgid "History:"
+msgstr "История изменений"
+#
+# File: src/quicknoteclasses/libhistory.py, line: 43
+# File: src/quicknoteclasses/libsqldialog.py, line: 65
+msgid "Timestamp"
+msgstr "Время"
+#
+# File: src/quicknoteclasses/libhistory.py, line: 44
+# File: src/quicknoteclasses/libnotizen.py, line: 234
+msgid "Note"
+msgstr "Заметка"
+#
+# File: src/quicknoteclasses/libkopfzeile.py, line: 48
+# File: src/quicknoteclasses/libkopfzeile.py, line: 106
+msgid "all"
+msgstr "все"
+#
+# File: src/quicknoteclasses/libkopfzeile.py, line: 131
+msgid "Search:  "
+msgstr "Поиск:  "
+#
+# File: src/quicknoteclasses/libkopfzeile.py, line: 141
+msgid "Category:  "
+msgstr "Категория:  "
+#
+# File: src/quicknoteclasses/libnotizen.py, line: 105
+msgid "Last change: %d.%m.%y %H:%M"
+msgstr "Редактировалась %d.%m.%y в %H:%M"
+#
+# File: src/quicknoteclasses/libnotizen.py, line: 116
+msgid "Really delete?"
+msgstr "Всё-таки удалять?"
+#
+# File: src/quicknoteclasses/libnotizen.py, line: 131
+msgid "new Note"
+msgstr "__ новая __"
+#
+# File: src/quicknoteclasses/libnotizen.py, line: 150
+# File: src/quicknoteclasses/libquicknote.py, line: 183
+msgid "No note selected."
+msgstr "Выберите сначала заметку"
+#
+# File: src/quicknoteclasses/libnotizen.py, line: 209
+msgid "Titles"
+msgstr "Заголовки"
+#
+# File: src/quicknoteclasses/libnotizen.py, line: 213
+msgid "add note"
+msgstr "добавить Заметку"
+#
+# File: src/quicknoteclasses/libnotizen.py, line: 217
+msgid "del note"
+msgstr "удалить Заметку"
+#
+# File: src/quicknoteclasses/libnotizen.py, line: 247
+msgid "History"
+msgstr "История изменений"
+#
+# File: src/quicknoteclasses/libquicknote.py, line: 78
+msgid "Choose database file"
+msgstr "Выберите файл для хранения заметок"
+#
+# File: src/quicknoteclasses/libquicknote.py, line: 95
+msgid "%s is a note taking program; it is optimised for quick save and search of notes"
+msgstr "%s - приложение для создания, хранения и быстрого поиска заметок"
+#
+# File: src/quicknoteclasses/libquicknote.py, line: 117
+msgid "Select SQL export file"
+msgstr "Выберите файл для экспорта запросов SQL"
+#
+# File: src/quicknoteclasses/libquicknote.py, line: 130
+msgid "This category can not be deleted"
+msgstr "Эту категорию нельзя удалять"
+#
+# File: src/quicknoteclasses/libquicknote.py, line: 136
+msgid "Are you sure to delete the current category?"
+msgstr "Вы уверены в удалении текущей категории?"
+#
+# File: src/quicknoteclasses/libquicknote.py, line: 152
+msgid "Choose category"
+msgstr "Категория:"
+#
+# File: src/quicknoteclasses/libquicknote.py, line: 196
+msgid "Sync"
+msgstr "Синхронизация"
+#
+# File: src/quicknoteclasses/libquicknote.py, line: 269
+msgid "Set DB file"
+msgstr "Хранилище"
+#
+# File: src/quicknoteclasses/libquicknote.py, line: 273
+msgid "SQL History"
+msgstr "SQL запросы"
+#
+# File: src/quicknoteclasses/libquicknote.py, line: 277
+msgid "Sync notes"
+msgstr "Синхронизация"
+#
+# File: src/quicknoteclasses/libquicknote.py, line: 281
+msgid "Quit"
+msgstr "Выход"
+#
+# File: src/quicknoteclasses/libquicknote.py, line: 285
+msgid "File"
+msgstr "Файл"
+#
+# File: src/quicknoteclasses/libquicknote.py, line: 296
+msgid "delete"
+msgstr "убрать"
+#
+# File: src/quicknoteclasses/libquicknote.py, line: 300
+msgid "move to category"
+msgstr "назначить"
+#
+# File: src/quicknoteclasses/libquicknote.py, line: 304
+msgid "Category"
+msgstr "Категория"
+#
+# File: src/quicknoteclasses/libquicknote.py, line: 310
+msgid "About"
+msgstr "О программе"
+#
+# File: src/quicknoteclasses/libquicknote.py, line: 314
+msgid "Help"
+msgstr "Справка"
+#
+# File: src/quicknoteclasses/libsqldialog.py, line: 46
+msgid "SQL History (the past two days):"
+msgstr "SQL запросы (за 2 последних дня)"
+#
+# File: src/quicknoteclasses/libsqldialog.py, line: 67
+msgid "Parameter"
+msgstr "Параметры"
+#
+# File: src/quicknoteclasses/libsqldialog.py, line: 105
+msgid "%d.%m.%y %H:%M:%S "
+msgstr "%d.%m.%y %H:%M:%S "
+#
+# File: src/quicknoteclasses/libsync.py, line: 43
+msgid "Sync process"
+msgstr "Синхронизация"
+#
+# File: src/quicknoteclasses/libsync.py, line: 48
+msgid "Sync process running...please wait"
+msgstr "Синхронизируются заметки, подождите ..."
+#
+# File: src/quicknoteclasses/libsync.py, line: 50
+msgid "(this can take some minutes)"
+msgstr "(некоторое время)"
+#
+# File: src/quicknoteclasses/libsync.py, line: 90
+msgid "Query"
+msgstr "Запрос"
+#
+# File: src/quicknoteclasses/libsync.py, line: 242
+msgid "Syncserver running..."
+msgstr "Сервер синхронизации работает ..."
+#
+# File: src/quicknoteclasses/libsync.py, line: 250
+msgid "Could not start SyncServer. Check IP, port settings."
+msgstr "Не удаётся стартовать Сервер синхронизации. Проверьте IP-адрес и порт."
+#
+# File: src/quicknoteclasses/libsync.py, line: 263
+# File: src/quicknoteclasses/libsync.py, line: 409
+msgid "SyncServer stopped"
+msgstr "Сервер синхронизации остановлен"
+#
+# File: src/quicknoteclasses/libsync.py, line: 280
+# File: src/quicknoteclasses/libsync.py, line: 316
+# File: src/quicknoteclasses/libsync.py, line: 324
+# File: src/quicknoteclasses/libsync.py, line: 331
+# File: src/quicknoteclasses/libsync.py, line: 422
+msgid "no sync process (at the moment)"
+msgstr "сейчас синхронизация не выполняется"
+#
+# File: src/quicknoteclasses/libsync.py, line: 289
+msgid "sync process running"
+msgstr "идёт синхронизация"
+#
+# File: src/quicknoteclasses/libsync.py, line: 318
+msgid "Synchronization successfully completed"
+msgstr "Синхронизация успешно завершенa"
+#
+# File: src/quicknoteclasses/libsync.py, line: 325
+msgid "The clocks are not synchronized between stations"
+msgstr "Согласуйте время между системами"
+#
+# File: src/quicknoteclasses/libsync.py, line: 332
+msgid "Sync failed, reason: "
+msgstr "Синхронизовать заметки не удалось по причине: "
+#
+# File: src/quicknoteclasses/libsync.py, line: 387
+msgid "Local SyncServer (port "
+msgstr "Местный сервер синхронизации (порт "
+#
+# File: src/quicknoteclasses/libsync.py, line: 405
+msgid "Start/Stop SyncServer"
+msgstr "Запуск/Остановка сервера синхронизации"
+#
+# File: src/quicknoteclasses/libsync.py, line: 412
+msgid "Remote SyncServer (port "
+msgstr "Удалённый сервер синхронизации (порт "
+#
+# File: src/quicknoteclasses/libsync.py, line: 418
+msgid "Connect to remote SyncServer"
+msgstr "Установить соединение"

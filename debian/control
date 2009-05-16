@@ -1,0 +1,21 @@
+Source: quicknote
+Section: user/other
+Priority: optional
+Maintainer: Christoph Würstle <n800 at axique de>
+Build-Depends: debhelper (>= 4.0.0), python2.5
+Standards-Version: 3.6.1
+
+Package: quicknote
+Architecture: all
+Depends: python2.5-hildon, python2.5-gtk2, python2.5-osso, python2.5-runtime
+Description: Quicknote
+XB-Maemo-Icon-26:
+ iVBORw0KGgoAAAANSUhEUgAAABoAAAAaCAYAAACpSkzOAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A
+ /wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9cLAwkANf/o52QAAAAddEVYdENv
+ bW1lbnQAQ3JlYXRlZCB3aXRoIFRoZSBHSU1Q72QlbgAAARNJREFUSMfNlsENhCAQRT9oPFiDmFCN
+ iRW7DViBnj1gEXog7AkXERUQk/0nCMpzZr4DRCkFAGjbVg3DgLIs8VRSSlBK0XUd4ZwDAHK9OI4j
+ +r5HKtV1jWVZtjnVgxSR2KKUHkFv6xLEGANj7F2QDyDkQ/IriBDiFqqfiQLZL/tuFl2jUDWsigfZ
+ aYs1SO67uRDiUDvfaE5Brs1ckIZV+Ih5m5vjKDPcGcIGvm6GIJDvj+pbm9PUmUV3pc1c+4jZG0Sv
+ amR3hivXRdnbhpn/jg25M8Et6G9aUGiHyEOOCbNmLtM8PibOIghJaZLOEFQjKWXybqCvcruIsixL
+ dj/QIoT8xpo6TZNa13W3+FScc1IUBQDgC9noggh/sT9oAAAAAElFTkSuQmCC
+

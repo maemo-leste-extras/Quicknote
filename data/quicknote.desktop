@@ -1,0 +1,11 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Quicknote
+Comment=Quicknote
+Type=Application
+Exec=/usr/bin/quicknote.py
+Icon=quicknote
+X-Window-Icon=quicknote
+X-Window-Icon-Dimmed=quicknote
+#X-Osso-Service=quicknote
+X-Osso-Type=application/x-executable
