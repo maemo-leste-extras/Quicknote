@@ -10,8 +10,7 @@ published by the Free Software Foundation.
 """
 
 
-import pygtk
-pygtk.require("2.0")
+import pango
 import gtk
 
 
@@ -42,7 +41,7 @@ class SimpleList(gtk.ScrolledWindow):
 		self._itemlist = gtk.ListStore(str, str)
 
 		# ScrolledWindow
-		self.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+		self.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
 		self.set_shadow_type(gtk.SHADOW_IN)
 
 		# Treeview
@@ -63,6 +62,7 @@ class SimpleList(gtk.ScrolledWindow):
 
 		# Value-Spalte hinzufügen
 		self._valueCell = gtk.CellRendererText()
+		self._valueCell.set_property("ellipsize", pango.ELLIPSIZE_END)
 		self._valueColumn = gtk.TreeViewColumn("Caption")
 		self._valueColumn.pack_start(self._valueCell, True)
 		self._valueColumn.add_attribute(self._valueCell, "text", self.VALUE_IDX)
