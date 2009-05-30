@@ -113,7 +113,7 @@ class Notizen(gtk.HBox):
 	def load_notes(self, data = None):
 		logging.info("load_notes params: pos:"+str(self._pos)+" noteid:"+str(self.noteId))
 		self._noteslist.clear_items()
-		self._noteslist.append_item(_("new Note"), "new")
+		self._noteslist.append_item(_("New Note..."), "new")
 
 		self._categoryName = self._topBox.get_category()
 		search = self._topBox.get_search_pattern()

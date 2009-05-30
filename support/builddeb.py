@@ -7,18 +7,20 @@ try:
 except ImportError:
 	import fake_py2deb as py2deb
 
+import constants
 
-__appname__ = "quicknote"
+__appname__ = constants.__app_name__
 __description__ = "Simple note taking application in a similar vein as PalmOS Memos"
 __author__ = "Christoph Wurstle"
 __email__ = "n800@axique.net"
-__version__ = "0.7.7"
+__version__ = constants.__version__
 __build__ = 0
 __changelog__ = '''
 0.7.7
  * Slight modifications to the note history and SQL dialogs
  * On zoom, also hiding the history status and button
  * Touched up the note list, making it ellipsize at the end rather than scroll
+ * Storing of zoom, wordwrap, and fullscreen settings
 
 0.7.6
   * Line-wrap
@@ -88,7 +90,7 @@ if __name__ == "__main__":
 	p.arch = "all"
 	p.urgency = "low"
 	p.distribution = "chinook diablo"
-	p.repository = "extras-devel"
+	p.repository = "extras"
 	p.changelog = __changelog__
 	p.postinstall = __postinstall__
 	p.icon = "26x26-quicknote.png"

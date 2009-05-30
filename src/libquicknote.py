@@ -9,13 +9,17 @@ it under the terms of the GNU General Public License version 2 as
 published by the Free Software Foundation.
 
 @todo Add Note Export (txt File) and Export All (json dump?)
-@todo Save word wrap and zoom setting 
+@todo Remove confirmation on deleting empty notes
+@todo Try to switch to more passive notifications (rather than message boxes)
 """
 
+from __future__ import with_statement
 
 import os
 import gc
 import logging
+import warnings
+import ConfigParser
 
 import gtk
 
@@ -31,6 +35,8 @@ try:
 except ImportError:
 	osso = None
 
+import constants
+
 import libspeichern
 import libkopfzeile
 import libnotizen
@@ -45,15 +51,13 @@ except NameError:
 
 class QuicknoteProgram(hildon.Program):
 
-	__pretty_app_name__ = "quicknote"
-	__app_name__ = "quicknote"
-	__version__ = "0.7.7"
+	_user_data = os.path.join(os.path.expanduser("~"), ".%s" % constants.__app_name__)
+	_user_settings = "%s/settings.ini" % _user_data
 
 	def __init__(self):
 		super(QuicknoteProgram, self).__init__()
 
-		home_dir = os.path.expanduser('~')
-		dblog = os.path.join(home_dir, "quicknote.log")
+		dblog = os.path.join(self._user_data, "quicknote.log")
 
 		# define a Handler which writes INFO messages or higher to the sys.stderr
 		console = logging.StreamHandler()
@@ -68,7 +72,7 @@ class QuicknoteProgram(hildon.Program):
 		logging.info('Starting quicknote')
 
 		if osso is not None:
-			self._osso_c = osso.Context(self.__app_name__, self.__version__, False)
+			self._osso_c = osso.Context(constants.__app_name__, constants.__version__, False)
 			self._deviceState = osso.DeviceState(self._osso_c)
 			self._deviceState.set_device_state_callback(self._on_device_state_change, 0)
 		else:
@@ -79,12 +83,13 @@ class QuicknoteProgram(hildon.Program):
 		self._window = hildon.Window()
 		self.add_window(self._window)
 
-		self._window.set_title(self.__pretty_app_name__)
+		self._window.set_title(constants.__pretty_app_name__)
 		self._window.connect("delete_event", self._on_delete_event)
 		self._window.connect("destroy", self._on_destroy)
 		self._window.connect("key-press-event", self._on_key_press)
 		self._window.connect("window-state-event", self._on_window_state_change)
 		self._window_in_fullscreen = False #The window isn't in full screen mode initially.
+		self._isZoomEnabled = False
 
 		self._db = libspeichern.Speichern()
 		self._syncDialog = None
@@ -174,13 +179,60 @@ class QuicknoteProgram(hildon.Program):
 
 		self._notizen = libnotizen.Notizen(self._db, self._topBox)
 		vbox.pack_start(self._notizen, True, True, 0)
-
 		self._window.add(vbox)
-		self._window.show_all()
+
 		self._on_toggle_word_wrap()
+
+		try:
+			os.makedirs(self._user_data)
+		except OSError, e:
+			if e.errno != 17:
+				raise
+		self._window.show_all()
+		self._load_settings()
 
 	def main(self):
 		gtk.main()
+
+	def _save_settings(self):
+		config = ConfigParser.SafeConfigParser()
+		self.save_settings(config)
+		with open(self._user_settings, "wb") as configFile:
+			config.write(configFile)
+
+	def save_settings(self, config):
+		config.add_section(constants.__pretty_app_name__)
+		config.set(constants.__pretty_app_name__, "wordwrap", str(self._wordWrapEnabled))
+		config.set(constants.__pretty_app_name__, "zoom", str(self._isZoomEnabled))
+		config.set(constants.__pretty_app_name__, "fullscreen", str(self._window_in_fullscreen))
+
+	def _load_settings(self):
+		config = ConfigParser.SafeConfigParser()
+		config.read(self._user_settings)
+		self.load_settings(config)
+
+	def load_settings(self, config):
+		try:
+			self._wordWrapEnabled = config.getboolean(constants.__pretty_app_name__, "wordwrap")
+			self._isZoomEnabled = config.getboolean(constants.__pretty_app_name__, "zoom")
+			self._window_in_fullscreen = config.getboolean(constants.__pretty_app_name__, "fullscreen")
+		except ConfigParser.NoSectionError, e:
+			warnings.warn(
+				"Settings file %s is missing section %s" % (
+					self._user_settings,
+					e.section,
+				),
+				stacklevel=2
+			)
+
+		self._notizen.set_wordwrap(self._wordWrapEnabled)
+
+		self.enable_zoom(self._isZoomEnabled)
+
+		if self._window_in_fullscreen:
+			self._window.fullscreen()
+		else:
+			self._window.unfullscreen()
 
 	def set_db_file(self, widget = None, data = None):
 		dlg = hildon.FileChooserDialog(parent=self._window, action=gtk.FILE_CHOOSER_ACTION_SAVE)
@@ -196,7 +248,7 @@ class QuicknoteProgram(hildon.Program):
 			self._db.openDB()
 			self._topBox.load_categories()
 			self._notizen.load_notes()
-			dlg.destroy()
+		dlg.destroy()
 
 	def _prepare_sync_dialog(self):
 		self._syncDialog = gtk.Dialog(_("Sync"), None, gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
@@ -208,6 +260,15 @@ class QuicknoteProgram(hildon.Program):
 		self._syncDialog.vbox.show_all()
 		sync.connect("syncFinished", self._on_sync_finished)
 
+	def enable_zoom(self, zoomEnabled):
+		self._isZoomEnabled = zoomEnabled
+		if zoomEnabled:
+			self._topBox.hide()
+			self._notizen.show_history_area(False)
+		else:
+			self._topBox.show()
+			self._notizen.show_history_area(True)
+
 	def _on_device_state_change(self, shutdown, save_unsaved_data, memory_low, system_inactivity, message, userData):
 		"""
 		For system_inactivity, we have no background tasks to pause
@@ -218,7 +279,7 @@ class QuicknoteProgram(hildon.Program):
 			gc.collect()
 
 		if save_unsaved_data or shutdown:
-			pass
+			self._save_settings()
 
 	def _on_window_state_change(self, widget, event, *args):
 		if event.new_window_state & gtk.gdk.WINDOW_STATE_FULLSCREEN:
@@ -235,12 +296,10 @@ class QuicknoteProgram(hildon.Program):
 				self._window.fullscreen ()
 		elif event.keyval == gtk.keysyms.F7:
 			# Zoom In
-			self._topBox.hide()
-			self._notizen.show_history_area(False)
+			self.enable_zoom(True)
 		elif event.keyval == gtk.keysyms.F8:
 			# Zoom Out
-			self._topBox.show()
-			self._notizen.show_history_area(True)
+			self.enable_zoom(False)
 
 	def _on_view_sql_history(self, widget = None, data = None, data2 = None):
 		import libsqldialog
@@ -255,10 +314,8 @@ class QuicknoteProgram(hildon.Program):
 			dlg.set_title(_("Select SQL export file"))
 			if dlg.run() == gtk.RESPONSE_OK:
 				fileName = dlg.get_filename()
-				dlg.destroy()
 				sqldiag.exportSQL(fileName)
-			else:
-				dlg.destroy()
+			dlg.destroy()
 
 		sqldiag.destroy()
 
@@ -339,19 +396,22 @@ class QuicknoteProgram(hildon.Program):
 		return False
 
 	def _on_destroy(self, widget = None, data = None):
-		self._db.close()
-		if self._osso_c:
-			self._osso_c.close()
-		gtk.main_quit()
+		try:
+			self._save_settings()
+			self._db.close()
+			if self._osso_c:
+				self._osso_c.close()
+		finally:
+			gtk.main_quit()
 
 	def _on_show_about(self, widget = None, data = None):
 		dialog = gtk.AboutDialog()
 		dialog.set_position(gtk.WIN_POS_CENTER)
-		dialog.set_name(self.__pretty_app_name__)
-		dialog.set_version(self.__version__)
+		dialog.set_name(constants.__pretty_app_name__)
+		dialog.set_version(constants.__version__)
 		dialog.set_copyright("")
 		dialog.set_website("http://axique.de/index.php?f=Quicknote")
-		comments = _("%s is a note taking program; it is optimised for quick save and search of notes") % self.__pretty_app_name__
+		comments = _("%s is a note taking program; it is optimised for quick save and search of notes") % constants.__pretty_app_name__
 		dialog.set_comments(comments)
 		dialog.run()
 		dialog.destroy()
