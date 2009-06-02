@@ -17,6 +17,8 @@ __email__ = "n800@axique.net"
 __version__ = constants.__version__
 __build__ = 0
 __changelog__ = '''
+0.7.8
+
 0.7.7
  * Slight modifications to the note history and SQL dialogs
  * On zoom, also hiding the history status and button
