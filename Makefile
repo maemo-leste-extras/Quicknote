@@ -55,6 +55,7 @@ build: $(OBJ) build_mo
 	rm -Rf $(BUILD_PATH)
 	mkdir $(BUILD_PATH)
 	cp $(PROGRAM)  $(BUILD_PATH)
+	cp src/constants.py $(BUILD_PATH)
 	$(foreach file, $(DATA), cp $(file) $(BUILD_PATH)/$(subst /,-,$(file)) ; )
 	$(foreach file, $(SOURCE), cp $(file) $(BUILD_PATH)/$(subst /,-,$(file)) ; )
 	$(foreach file, $(OBJ), cp $(file) $(BUILD_PATH)/$(subst /,-,$(file)) ; )

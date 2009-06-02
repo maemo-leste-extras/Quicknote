@@ -1,6 +1,7 @@
 #!/usr/bin/python2.5
 
 import os
+import sys
 
 try:
 	import py2deb
