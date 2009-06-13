@@ -10,6 +10,7 @@ except ImportError:
 
 import constants
 
+
 __appname__ = constants.__app_name__
 __description__ = "Simple note taking application in a similar vein as PalmOS Memos"
 __author__ = "Christoph Wurstle"
@@ -77,7 +78,7 @@ def unflatten_files(files):
 	return d
 
 
-if __name__ == "__main__":
+def build_package(distribution):
 	try:
 		os.chdir(os.path.dirname(sys.argv[0]))
 	except:
@@ -88,11 +89,14 @@ if __name__ == "__main__":
 	p.author = __author__
 	p.mail = __email__
 	p.license = "lgpl"
-	p.depends = "python2.5, python2.5-gtk2"
+	p.depends = {
+		"diablo": "python2.5, python2.5-gtk2",
+		"mer": "python2.6, python-gtk2",
+	}[distribution]
 	p.section = "user/other"
 	p.arch = "all"
 	p.urgency = "low"
-	p.distribution = "chinook diablo"
+	p.distribution = "chinook diablo fremantle mer"
 	p.repository = "extras"
 	p.changelog = __changelog__
 	p.postinstall = __postinstall__
@@ -126,3 +130,20 @@ if __name__ == "__main__":
 		__version__, __build__, changelog=__changelog__,
 		tar=True, dsc=True, changes=True, build=False, src=True
 	)
+	print "Building for %s finished" % distribution
+
+
+if __name__ == "__main__":
+	if len(sys.argv) > 1:
+		try:
+			import optparse
+		except ImportError:
+			optparse = None
+
+		if optparse is not None:
+			parser = optparse.OptionParser()
+			(commandOptions, commandArgs) = parser.parse_args()
+	else:
+		commandArgs = None
+		commandArgs = ["diablo"]
+	build_package(commandArgs[0])
