@@ -15,6 +15,7 @@ import uuid
 
 import gobject
 import gtk
+import gtkspell
 
 import simple_list
 
@@ -67,6 +68,7 @@ class Notizen(gtk.HBox):
 		buf = self._noteBodyView.get_buffer()
 		buf.set_text("")
 		buf.connect("changed", self._on_note_changed, None)
+		self._noteBodySpellChecker = gtkspell.Spell(self._noteBodyView)
 
 		#self.textviewNotiz.set_size_request(-1, 50)
 		self._noteScrollWindow = gtk.ScrolledWindow()

@@ -1,10 +1,31 @@
+quicknote (0.7.8) unstable; urgency=low
+
+  * Spell checking
+
+ -- unknown <eopage@byu.net>  Thu,  18 July 2009 08:12:53 +0100
+
+quicknote (0.7.7) unstable; urgency=low
+
+  * Slight modifications to the note history and SQL dialogs
+  * On zoom, also hiding the history status and button
+  * Touched up the note list, making it ellipsize at the end rather than scroll
+  * Storing of zoom, wordwrap, and fullscreen settings
+
+ -- unknown <eopage@byu.net>  Thu,  22 May 2008 08:12:53 +0100
+
+quicknote (0.7.6) unstable; urgency=low
+
+  * Line-wrap
+  * Zoom
+
+ -- unknown <eopage@byu.nt>  Thu,  22 May 2008 08:12:53 +0100
+
 quicknote (0.7.4) unstable; urgency=low
 
   * fixed small bugs
   * move category
 
  -- unknown <n800@axique.de>  Thu,  22 May 2008 08:12:53 +0100
-
 
 quicknote (0.7.3) unstable; urgency=low
 

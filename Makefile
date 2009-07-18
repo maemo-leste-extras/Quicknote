@@ -1,5 +1,5 @@
 PROJECT_NAME=quicknote
-PROJECT_VERSION=0.7.7
+PROJECT_VERSION=0.7.8
 SOURCE_PATH=src
 SOURCE=$(shell find $(SOURCE_PATH) -iname "*.py")
 LOCALE_PATH=locale
