@@ -15,7 +15,10 @@ import uuid
 
 import gobject
 import gtk
-import gtkspell
+try:
+	import gtkspell
+except ImportError:
+	gtkspell = None
 
 import simple_list
 
@@ -68,7 +71,10 @@ class Notizen(gtk.HBox):
 		buf = self._noteBodyView.get_buffer()
 		buf.set_text("")
 		buf.connect("changed", self._on_note_changed, None)
-		self._noteBodySpellChecker = gtkspell.Spell(self._noteBodyView)
+		if gtkspell is not None:
+			self._noteBodySpellChecker = gtkspell.Spell(self._noteBodyView)
+		else:
+			self._noteBodySpellChecker = None
 
 		#self.textviewNotiz.set_size_request(-1, 50)
 		self._noteScrollWindow = gtk.ScrolledWindow()
