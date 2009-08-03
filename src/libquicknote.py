@@ -83,6 +83,8 @@ class QuicknoteProgram(hildon.Program):
 		self._window = hildon.Window()
 		self.add_window(self._window)
 
+		if IS_HILDON:
+			gtk.set_application_name(constants.__pretty_app_name__)
 		self._window.set_title(constants.__pretty_app_name__)
 		self._window.connect("delete_event", self._on_delete_event)
 		self._window.connect("destroy", self._on_destroy)
