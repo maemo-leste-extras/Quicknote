@@ -20,6 +20,7 @@ __build__ = 0
 __changelog__ = '''
 0.7.8
  * Spell checking
+ * Fixing the application title
 
 0.7.7
  * Slight modifications to the note history and SQL dialogs

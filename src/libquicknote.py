@@ -56,6 +56,8 @@ class QuicknoteProgram(hildon.Program):
 
 	def __init__(self):
 		super(QuicknoteProgram, self).__init__()
+		if IS_HILDON:
+			gtk.set_application_name(constants.__pretty_app_name__)
 
 		dblog = os.path.join(self._user_data, "quicknote.log")
 
@@ -83,9 +85,8 @@ class QuicknoteProgram(hildon.Program):
 		self._window = hildon.Window()
 		self.add_window(self._window)
 
-		if IS_HILDON:
-			gtk.set_application_name(constants.__pretty_app_name__)
-		self._window.set_title(constants.__pretty_app_name__)
+		if not IS_HILDON:
+			self._window.set_title(constants.__pretty_app_name__)
 		self._window.connect("delete_event", self._on_delete_event)
 		self._window.connect("destroy", self._on_destroy)
 		self._window.connect("key-press-event", self._on_key_press)
