@@ -26,6 +26,9 @@ _moduleLogger = logging.getLogger("kopfzeile")
 
 
 class Kopfzeile(gtk.HBox):
+	"""
+	Category/Search box
+	"""
 
 	__gsignals__ = {
 		'reload_notes' : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, ()),

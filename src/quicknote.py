@@ -19,7 +19,7 @@ sys.path.append('/usr/lib/quicknote')
 
 
 import constants
-import libquicknote
+import quicknote_gtk
 
 
 if __name__ == "__main__":
@@ -33,5 +33,5 @@ if __name__ == "__main__":
 	logging.basicConfig(level=logging.DEBUG, filename=userLogPath)
 	_moduleLogger.info("quicknote %s-%s" % (constants.__version__, constants.__build__))
 
-	app = libquicknote.QuicknoteProgram()
+	app = quicknote_gtk.QuicknoteProgram()
 	app.main()

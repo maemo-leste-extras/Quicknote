@@ -37,10 +37,10 @@ except ImportError:
 
 import constants
 
-import libspeichern
-import libkopfzeile
-import libnotizen
-import libsync
+import speichern
+import kopfzeile
+import notizen
+import sync
 
 
 try:
@@ -87,7 +87,7 @@ class QuicknoteProgram(hildon.Program):
 		self._window_in_fullscreen = False #The window isn't in full screen mode initially.
 		self._isZoomEnabled = False
 
-		self._db = libspeichern.Speichern()
+		self._db = speichern.Speichern()
 		self._syncDialog = None
 		self._prepare_sync_dialog()
 
@@ -170,10 +170,10 @@ class QuicknoteProgram(hildon.Program):
 			vbox.pack_start(menu_bar, False, False, 0)
 
 		#Create GUI elements
-		self._topBox = libkopfzeile.Kopfzeile(self._db)
+		self._topBox = kopfzeile.Kopfzeile(self._db)
 		vbox.pack_start(self._topBox, False, False, 0)
 
-		self._notizen = libnotizen.Notizen(self._db, self._topBox)
+		self._notizen = notizen.Notizen(self._db, self._topBox)
 		vbox.pack_start(self._notizen, True, True, 0)
 		self._window.add(vbox)
 
@@ -250,11 +250,11 @@ class QuicknoteProgram(hildon.Program):
 		self._syncDialog = gtk.Dialog(_("Sync"), None, gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
 
 		self._syncDialog.set_position(gtk.WIN_POS_CENTER)
-		sync = libsync.Sync(self._db, self._window, 50504)
-		self._syncDialog.vbox.pack_start(sync, True, True, 0)
+		syncer = sync.Sync(self._db, self._window, 50504)
+		self._syncDialog.vbox.pack_start(syncer, True, True, 0)
 		self._syncDialog.set_size_request(500, 350)
 		self._syncDialog.vbox.show_all()
-		sync.connect("syncFinished", self._on_sync_finished)
+		syncer.connect("syncFinished", self._on_sync_finished)
 
 	def enable_zoom(self, zoomEnabled):
 		self._isZoomEnabled = zoomEnabled
@@ -298,8 +298,8 @@ class QuicknoteProgram(hildon.Program):
 			self.enable_zoom(False)
 
 	def _on_view_sql_history(self, widget = None, data = None, data2 = None):
-		import libsqldialog
-		sqldiag = libsqldialog.SqlDialog(self._db)
+		import sqldialog
+		sqldiag = sqldialog.SqlDialog(self._db)
 		res = sqldiag.run()
 		sqldiag.hide()
 		if res == sqldiag.EXPORT_RESPONSE:

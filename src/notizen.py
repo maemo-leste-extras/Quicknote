@@ -245,8 +245,8 @@ class Notizen(gtk.HBox):
 
 		rows = self._db.getNoteHistory(self.noteId)
 
-		import libhistory
-		dialog = libhistory.Dialog()
+		import history
+		dialog = history.Dialog()
 
 		lastNoteStr = ""
 		for row in rows:

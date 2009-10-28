@@ -27,7 +27,7 @@ except NameError:
 _moduleLogger = logging.getLogger("speichern")
 
 
-class Speichern():
+class Speichern(object):
 
 	def __init__(self):
 		home_dir = os.path.expanduser('~')
