@@ -36,6 +36,7 @@ except ImportError:
 	osso = None
 
 import constants
+import hildonize
 
 import speichern
 import kopfzeile
@@ -52,7 +53,7 @@ except NameError:
 _moduleLogger = logging.getLogger("quick")
 
 
-class QuicknoteProgram(hildon.Program):
+class QuicknoteProgram(hildonize.get_app_class()):
 
 	_user_data = os.path.join(os.path.expanduser("~"), ".%s" % constants.__app_name__)
 	_user_settings = "%s/settings.ini" % _user_data
@@ -74,99 +75,82 @@ class QuicknoteProgram(hildon.Program):
 			self._osso_c = None
 			self._deviceState = None
 
-		#Get the Main Window, and connect the "destroy" event
-		self._window = hildon.Window()
-		self.add_window(self._window)
-
-		if not IS_HILDON:
-			self._window.set_title(constants.__pretty_app_name__)
-		self._window.connect("delete_event", self._on_delete_event)
-		self._window.connect("destroy", self._on_destroy)
-		self._window.connect("key-press-event", self._on_key_press)
-		self._window.connect("window-state-event", self._on_window_state_change)
 		self._window_in_fullscreen = False #The window isn't in full screen mode initially.
 		self._isZoomEnabled = False
 
 		self._db = speichern.Speichern()
 		self._syncDialog = None
-		self._prepare_sync_dialog()
 
 		#Create GUI main vbox
 		vbox = gtk.VBox(homogeneous = False, spacing = 0)
 
-		#Create Menu and apply it for hildon
-		filemenu = gtk.Menu()
+		if not hildonize.IS_FREMANTLE_SUPPORTED:
+			#Create Menu and apply it for hildon
+			filemenu = gtk.Menu()
 
-		menu_items = gtk.MenuItem(_("Set DB file"))
-		filemenu.append(menu_items)
-		menu_items.connect("activate", self.set_db_file, None)
+			menu_items = gtk.MenuItem(_("Set DB file"))
+			filemenu.append(menu_items)
+			menu_items.connect("activate", self.set_db_file, None)
 
-		menu_items = gtk.MenuItem(_("SQL History"))
-		filemenu.append(menu_items)
-		menu_items.connect("activate", self._on_view_sql_history, None)
+			menu_items = gtk.MenuItem(_("SQL History"))
+			filemenu.append(menu_items)
+			menu_items.connect("activate", self._on_view_sql_history, None)
 
-		menu_items = gtk.MenuItem(_("Sync notes"))
-		filemenu.append(menu_items)
-		menu_items.connect("activate", self._on_sync_notes, None)
+			menu_items = gtk.MenuItem(_("Sync notes"))
+			filemenu.append(menu_items)
+			menu_items.connect("activate", self._on_sync_notes, None)
 
-		menu_items = gtk.MenuItem(_("Quit"))
-		filemenu.append(menu_items)
-		menu_items.connect("activate", self._on_destroy, None)
+			menu_items = gtk.MenuItem(_("Quit"))
+			filemenu.append(menu_items)
+			menu_items.connect("activate", self._on_destroy, None)
 
-		file_menu = gtk.MenuItem(_("File"))
-		file_menu.show()
-		file_menu.set_submenu(filemenu)
+			file_menu = gtk.MenuItem(_("File"))
+			file_menu.show()
+			file_menu.set_submenu(filemenu)
 
-		categorymenu = gtk.Menu()
+			categorymenu = gtk.Menu()
 
-		menu_items = gtk.MenuItem(_("Delete"))
-		categorymenu.append(menu_items)
-		menu_items.connect("activate", self._on_delete_category, None)
+			menu_items = gtk.MenuItem(_("Delete"))
+			categorymenu.append(menu_items)
+			menu_items.connect("activate", self._on_delete_category, None)
 
-		menu_items = gtk.MenuItem(_("Move To Category"))
-		categorymenu.append(menu_items)
-		menu_items.connect("activate", self._on_move_category, None)
+			menu_items = gtk.MenuItem(_("Move To Category"))
+			categorymenu.append(menu_items)
+			menu_items.connect("activate", self._on_move_category, None)
 
-		category_menu = gtk.MenuItem(_("Category"))
-		category_menu.show()
-		category_menu.set_submenu(categorymenu)
+			category_menu = gtk.MenuItem(_("Category"))
+			category_menu.show()
+			category_menu.set_submenu(categorymenu)
 
-		viewmenu = gtk.Menu()
+			viewmenu = gtk.Menu()
 
-		menu_items = gtk.MenuItem(_("Word Wrap"))
-		viewmenu.append(menu_items)
-		menu_items.connect("activate", self._on_toggle_word_wrap, None)
-		self._wordWrapEnabled = False
+			menu_items = gtk.MenuItem(_("Word Wrap"))
+			viewmenu.append(menu_items)
+			menu_items.connect("activate", self._on_toggle_word_wrap, None)
+			self._wordWrapEnabled = False
 
-		view_menu = gtk.MenuItem(_("View"))
-		view_menu.show()
-		view_menu.set_submenu(viewmenu)
+			view_menu = gtk.MenuItem(_("View"))
+			view_menu.show()
+			view_menu.set_submenu(viewmenu)
 
-		helpmenu = gtk.Menu()
+			helpmenu = gtk.Menu()
 
-		menu_items = gtk.MenuItem(_("About"))
-		helpmenu.append(menu_items)
-		menu_items.connect("activate", self._on_show_about, None)
+			menu_items = gtk.MenuItem(_("About"))
+			helpmenu.append(menu_items)
+			menu_items.connect("activate", self._on_show_about, None)
 
-		help_menu = gtk.MenuItem(_("Help"))
-		help_menu.show()
-		help_menu.set_submenu(helpmenu)
+			help_menu = gtk.MenuItem(_("Help"))
+			help_menu.show()
+			help_menu.set_submenu(helpmenu)
 
-		menu_bar = gtk.MenuBar()
-		menu_bar.show()
-		menu_bar.append (file_menu)
-		menu_bar.append (category_menu)
-		menu_bar.append (view_menu)
-		menu_bar.append (help_menu)
+			menu_bar = gtk.MenuBar()
+			menu_bar.show()
+			menu_bar.append (file_menu)
+			menu_bar.append (category_menu)
+			menu_bar.append (view_menu)
+			menu_bar.append (help_menu)
 
-		menu_bar.show()
-		if IS_HILDON:
-			menu = gtk.Menu()
-			for child in menu_bar.get_children():
-				child.reparent(menu)
-			self._window.set_menu(menu)
-			menu_bar.destroy()
-		else:
+			menu_bar.show()
 			vbox.pack_start(menu_bar, False, False, 0)
 
 		#Create GUI elements
@@ -175,7 +159,15 @@ class QuicknoteProgram(hildon.Program):
 
 		self._notizen = notizen.Notizen(self._db, self._topBox)
 		vbox.pack_start(self._notizen, True, True, 0)
+
+		#Get the Main Window, and connect the "destroy" event
+		self._window = gtk.Window()
 		self._window.add(vbox)
+
+		self._window.connect("delete_event", self._on_delete_event)
+		self._window.connect("destroy", self._on_destroy)
+		self._window.connect("key-press-event", self._on_key_press)
+		self._window.connect("window-state-event", self._on_window_state_change)
 
 		self._on_toggle_word_wrap()
 
@@ -184,6 +176,18 @@ class QuicknoteProgram(hildon.Program):
 		except OSError, e:
 			if e.errno != 17:
 				raise
+
+		self._window = hildonize.hildonize_window(self, self._window)
+		hildonize.set_application_title(self._window, "%s" % constants.__pretty_app_name__)
+		if not hildonize.IS_FREMANTLE_SUPPORTED:
+			menu_bar = hildonize.hildonize_menu(
+				self._window,
+				menu_bar,
+				[]
+			)
+
+		self._prepare_sync_dialog()
+
 		self._window.show_all()
 		self._load_settings()
 
@@ -284,7 +288,11 @@ class QuicknoteProgram(hildon.Program):
 			self._window_in_fullscreen = False
 
 	def _on_key_press(self, widget, event, *args):
-		if event.keyval == gtk.keysyms.F6:
+		RETURN_TYPES = (gtk.keysyms.Return, gtk.keysyms.ISO_Enter, gtk.keysyms.KP_Enter)
+		if (
+			event.keyval == gtk.keysyms.F6 or
+			event.keyval in RETURN_TYPES and event.get_state() & gtk.gdk.CONTROL_MASK
+		):
 			# The "Full screen" hardware key has been pressed 
 			if self._window_in_fullscreen:
 				self._window.unfullscreen ()

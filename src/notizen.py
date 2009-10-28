@@ -45,19 +45,15 @@ class Notizen(gtk.HBox):
 		gtk.HBox.__init__(self, homogeneous = False, spacing = 0)
 		_moduleLogger.info("libnotizen, init")
 
+		# Note list
 		self._noteslist = simple_list.SimpleList()
 		self._noteslist.set_eventfunction_cursor_changed(self._update_noteslist)
-
 		self._noteslist.set_size_request(250, -1)
-
-		vbox = gtk.VBox(homogeneous = False, spacing = 0)
 
 		frame = gtk.Frame(_("Titles"))
 		frame.add(self._noteslist)
-		vbox.pack_start(frame, expand = True, fill = True, padding = 3)
 
 		buttonHBox = gtk.HBox()
-		vbox.pack_start(buttonHBox, expand = False, fill = True, padding = 3)
 
 		button = gtk.Button(stock = gtk.STOCK_ADD)
 		button.connect("clicked", self._on_add_note, None)
@@ -67,8 +63,12 @@ class Notizen(gtk.HBox):
 		button.connect("clicked", self._on_delete_note, None)
 		buttonHBox.pack_start(button, expand = True, fill = True, padding = 3)
 
-		self.pack_start(vbox, expand = False, fill = True, padding = 3)
+		listVbox = gtk.VBox(homogeneous = False, spacing = 0)
+		listVbox.pack_start(frame, expand = True, fill = True, padding = 3)
+		listVbox.pack_start(buttonHBox, expand = False, fill = True, padding = 3)
+		self.pack_start(listVbox, expand = False, fill = True, padding = 3)
 
+		# Note view
 		self._noteBodyView = gtk.TextView()
 		self._noteBodyView.connect("focus-out-event", self.save_note, "focus-out-event")
 		buf = self._noteBodyView.get_buffer()
@@ -79,7 +79,6 @@ class Notizen(gtk.HBox):
 		else:
 			self._noteBodySpellChecker = None
 
-		#self.textviewNotiz.set_size_request(-1, 50)
 		self._noteScrollWindow = gtk.ScrolledWindow()
 		self._noteScrollWindow.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 		self._noteScrollWindow.add(self._noteBodyView)
@@ -87,9 +86,7 @@ class Notizen(gtk.HBox):
 		frame = gtk.Frame(_("Note"))
 		frame.add(self._noteScrollWindow)
 
-		vbox = gtk.VBox(homogeneous = False, spacing = 0)
-		vbox.pack_start(frame, expand = True, fill = True, padding = 3)
-
+		# History
 		self._historyBox = gtk.HBox(homogeneous = False, spacing = 0)
 
 		self._historyStatusLabel = gtk.Label(_("No History"))
@@ -100,9 +97,11 @@ class Notizen(gtk.HBox):
 		button.connect("clicked", self._on_show_history, None)
 		self._historyBox.pack_start(button, expand = True, fill = True, padding = 3)
 
-		vbox.pack_start(self._historyBox, expand = False, fill = True, padding = 3)
-
-		self.pack_start(vbox, expand = True, fill = True, padding = 3)
+		# Note and history stuff in same column
+		noteVbox = gtk.VBox(homogeneous = False, spacing = 0)
+		noteVbox.pack_start(frame, expand = True, fill = True, padding = 3)
+		noteVbox.pack_start(self._historyBox, expand = False, fill = True, padding = 3)
+		self.pack_start(noteVbox, expand = True, fill = True, padding = 3)
 
 		self.load_notes()
 		self._topBox.connect("reload_notes", self.load_notes)

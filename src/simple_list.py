@@ -13,6 +13,8 @@ published by the Free Software Foundation.
 import pango
 import gtk
 
+import hildonize
+
 
 try:
 	_
@@ -24,6 +26,8 @@ class SimpleList(gtk.ScrolledWindow):
 	"""
 	Stellt eine einfache Liste mit Laufbalken dar. Das wird mit
 	den Objekten ScrolledWindow und TreeView erreicht.
+
+	@todo Decouple SimpleList from scrolled window to be able to hildonize it
 	"""
 
 	KEY_IDX = 0
