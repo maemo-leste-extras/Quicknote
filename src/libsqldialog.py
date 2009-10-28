@@ -22,6 +22,9 @@ except NameError:
 	_ = lambda x: x
 
 
+_moduleLogger = logging.getLogger("sqldialog")
+
+
 class SqlDialog(gtk.Dialog):
 
 	EXPORT_RESPONSE = 444
@@ -29,7 +32,7 @@ class SqlDialog(gtk.Dialog):
 	def __init__(self, db):
 		self.db = db
 
-		logging.info("sqldialog, init")
+		_moduleLogger.info("sqldialog, init")
 
 		gtk.Dialog.__init__(self, _("SQL History (the past two days):"), None, gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT)
 

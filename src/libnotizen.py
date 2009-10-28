@@ -29,6 +29,9 @@ except NameError:
 	_ = lambda x: x
 
 
+_moduleLogger = logging.getLogger("notizen")
+
+
 class Notizen(gtk.HBox):
 
 	def __init__(self, db, topBox):
@@ -40,7 +43,7 @@ class Notizen(gtk.HBox):
 		self._categoryName = ""
 
 		gtk.HBox.__init__(self, homogeneous = False, spacing = 0)
-		logging.info("libnotizen, init")
+		_moduleLogger.info("libnotizen, init")
 
 		self._noteslist = simple_list.SimpleList()
 		self._noteslist.set_eventfunction_cursor_changed(self._update_noteslist)
@@ -119,7 +122,7 @@ class Notizen(gtk.HBox):
 			self._historyBox.hide()
 
 	def load_notes(self, data = None):
-		logging.info("load_notes params: pos:"+str(self._pos)+" noteid:"+str(self.noteId))
+		_moduleLogger.info("load_notes params: pos:"+str(self._pos)+" noteid:"+str(self.noteId))
 		self._noteslist.clear_items()
 		self._noteslist.append_item(_("New Note..."), "new")
 
@@ -138,7 +141,7 @@ class Notizen(gtk.HBox):
 		self._noteBodyView.get_buffer().set_text("")
 
 	def save_note(self, widget = None, data = None, data2 = None):
-		logging.info("save_note params: pos:"+str(self._pos)+" noteid:"+str(self.noteId))
+		_moduleLogger.info("save_note params: pos:"+str(self._pos)+" noteid:"+str(self.noteId))
 		#print "params:", data, data2
 		buf = self._noteBodyView.get_buffer().get_text(self._noteBodyView.get_buffer().get_start_iter(), self._noteBodyView.get_buffer().get_end_iter())
 		if buf is None or len(buf) == 0:
@@ -147,7 +150,7 @@ class Notizen(gtk.HBox):
 		if buf == self._noteBody:
 			return
 
-		logging.info("Saving note: "+buf)
+		_moduleLogger.info("Saving note: "+buf)
 		if self._pos == -1 or self.noteId == -1:
 			self._pos = -1
 			self.noteId = str(uuid.uuid4())
@@ -261,7 +264,7 @@ class Notizen(gtk.HBox):
 			data = dialog.get_selected_row()
 			if data is not None:
 				self._db.speichereSQL(data[2], data[3].split(" <<Tren-ner>> "), rowid = self.noteId)
-				logging.info("loading History")
+				_moduleLogger.info("loading History")
 				self._update_noteslist()
 
 		dialog.destroy()

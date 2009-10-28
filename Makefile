@@ -13,22 +13,27 @@ POTFILES=$(wildcard src/quicknoteclasses/*.py)
 
 UNIT_TEST=nosetests --with-doctest -w .
 SYNTAX_TEST=support/test_syntax.py
+STYLE_TEST=../../Python/tools/pep8.py --ignore=W191,E501
 LINT_RC=./support/pylint.rc
 LINT=pylint --rcfile=$(LINT_RC)
 PROFILE_GEN=python -m cProfile -o .profile
 PROFILE_VIEW=python -m pstats .profile
+TODO_FINDER=support/todo.py
+CTAGS=ctags-exuberant
 
-.PHONY: all run profile test lint clean distclean install update_po build_mo
+.PHONY: all run profile debug test lint tags todo clean distclean install update_po build_mo
 
-all: build_mo
-	python2.5 setup.py build  
+all: test
 
-run:
+run: $(OBJ)
 	$(PROGRAM)
 
-profile:
+profile: $(OBJ)
 	$(PROFILE_GEN) $(PROGRAM)
 	$(PROFILE_VIEW)
+
+debug: $(OBJ)
+	$(DEBUGGER) $(PROGRAM)
 
 test: $(OBJ)
 	$(UNIT_TEST)
@@ -72,20 +77,31 @@ build: $(OBJ) build_mo
 lint: $(OBJ)
 	$(foreach file, $(SOURCE), $(LINT) $(file) ; )
 
-clean: 
-	rm -rf ./locale
-	rm -rf $(OBJ)
-	rm -Rf $(BUILD_PATH)
-	python2.5 setup.py clean --all
+tags: $(TAG_FILE) 
 
-distclean: clean
+todo: $(TODO_FILE)
+
+clean:
+	rm -rf ./locale
+	rm -Rf $(OBJ)
+	rm -Rf $(BUILD_PATH)
+	rm -Rf $(TODO_FILE)
+
+distclean:
+	rm -Rf $(OBJ)
+	rm -Rf $(BUILD_PATH)
+	rm -Rf $(TAG_FILE)
 	find $(SOURCE_PATH) -name "*.*~" | xargs rm -f
 	find $(SOURCE_PATH) -name "*.swp" | xargs rm -f
 	find $(SOURCE_PATH) -name "*.bak" | xargs rm -f
 	find $(SOURCE_PATH) -name ".*.swp" | xargs rm -f
 
-install: build_mo
-	python2.5 setup.py install --root $(DESTDIR) 
+$(TAG_FILE): $(OBJ)
+	mkdir -p $(dir $(TAG_FILE))
+	$(CTAGS) -o $(TAG_FILE) $(SOURCE)
+
+$(TODO_FILE): $(SOURCE)
+	@- $(TODO_FINDER) $(SOURCE) > $(TODO_FILE)
 
 %.pyc: %.py
 	$(SYNTAX_TEST) $<

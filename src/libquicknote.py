@@ -1,4 +1,4 @@
-#/usr/bin/env python2.5
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 """
@@ -49,6 +49,9 @@ except NameError:
 	_ = lambda x: x
 
 
+_moduleLogger = logging.getLogger("quick")
+
+
 class QuicknoteProgram(hildon.Program):
 
 	_user_data = os.path.join(os.path.expanduser("~"), ".%s" % constants.__app_name__)
@@ -61,17 +64,7 @@ class QuicknoteProgram(hildon.Program):
 
 		dblog = os.path.join(self._user_data, "quicknote.log")
 
-		# define a Handler which writes INFO messages or higher to the sys.stderr
-		console = logging.StreamHandler()
-		console.setLevel(logging.DEBUG)
-		# set a format which is simpler for console use
-		formatter = logging.Formatter('%(asctime)s  %(levelname)-8s %(message)s')
-		# tell the handler to use this format
-		console.setFormatter(formatter)
-		# add the handler to the root logger
-		logging.getLogger('').addHandler(console)
-
-		logging.info('Starting quicknote')
+		_moduleLogger.info('Starting quicknote')
 
 		if osso is not None:
 			self._osso_c = osso.Context(constants.__app_name__, constants.__version__, False)
@@ -310,7 +303,7 @@ class QuicknoteProgram(hildon.Program):
 		res = sqldiag.run()
 		sqldiag.hide()
 		if res == sqldiag.EXPORT_RESPONSE:
-			logging.info("exporting sql")
+			_moduleLogger.info("exporting sql")
 
 			dlg = hildon.FileChooserDialog(parent=self._window, action=gtk.FILE_CHOOSER_ACTION_SAVE)
 
@@ -419,3 +412,9 @@ class QuicknoteProgram(hildon.Program):
 		dialog.set_authors(["Christoph Wurstle <n800@axique.net>", "Ed Page <edpage@byu.net> (Blame him for the most recent bugs)"])
 		dialog.run()
 		dialog.destroy()
+
+
+if __name__ == "__main__":
+	logging.basicConfig(level=logging.DEBUG)
+	app = QuicknoteProgram()
+	app.main()

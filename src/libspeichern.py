@@ -24,6 +24,9 @@ except NameError:
 	_ = lambda x: x
 
 
+_moduleLogger = logging.getLogger("speichern")
+
+
 class Speichern():
 
 	def __init__(self):
@@ -34,7 +37,7 @@ class Speichern():
 
 	def speichereDirekt(self, schluessel, daten):
 		self.d[schluessel] = daten
-		logging.info("speichereDirekt "+str(schluessel)+" "+str(daten)+" lesen: "+str(self.d[schluessel]))
+		_moduleLogger.info("speichereDirekt "+str(schluessel)+" "+str(daten)+" lesen: "+str(self.d[schluessel]))
 
 	def ladeDirekt(self, schluessel, default = ""):
 		if (self.d.has_key(schluessel) == True):
@@ -69,9 +72,9 @@ class Speichern():
 			s = str(sys.exc_info())
 			if s.find(" already exists") == -1:
 				if (programSQLError == True):
-					logging.error("speichereSQL-Exception "+str(sys.exc_info())+" "+str(sql)+" "+str(tupel))
+					_moduleLogger.error("speichereSQL-Exception "+str(sys.exc_info())+" "+str(sql)+" "+str(tupel))
 				else:
-					logging.error("speichereSQL-Exception in Logging!!!! :"+str(sys.exc_info())+" "+str(sql)+" "+str(tupel))
+					_moduleLogger.error("speichereSQL-Exception in Logging!!!! :"+str(sys.exc_info())+" "+str(sql)+" "+str(tupel))
 			return False
 
 	def commitSQL(self):
@@ -86,7 +89,7 @@ class Speichern():
 				self.cur.execute(sql, tupel)
 			return self.cur.fetchall()
 		except StandardError:
-			logging.error("ladeSQL-Exception "+str(sys.exc_info())+" "+str(sql)+" "+str(tupel))
+			_moduleLogger.error("ladeSQL-Exception "+str(sys.exc_info())+" "+str(sql)+" "+str(tupel))
 			return ()
 
 	def ladeHistory(self, sql_condition, param_condition):
@@ -199,7 +202,7 @@ class Speichern():
 			self.conn.close()
 		except StandardError:
 			pass
-		logging.info("Alle Data saved")
+		_moduleLogger.info("Alle Data saved")
 
 	def __del__(self):
 		self.close()

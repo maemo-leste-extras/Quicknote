@@ -10,6 +10,8 @@ published by the Free Software Foundation.
 """
 
 
+import logging
+
 import gtk
 
 
@@ -17,6 +19,9 @@ try:
 	_
 except NameError:
 	_ = lambda x: x
+
+
+_moduleLogger = logging.getLogger("history")
 
 
 class Dialog(gtk.Dialog):

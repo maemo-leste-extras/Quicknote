@@ -22,6 +22,9 @@ except NameError:
 	_ = lambda x: x
 
 
+_moduleLogger = logging.getLogger("kopfzeile")
+
+
 class Kopfzeile(gtk.HBox):
 
 	__gsignals__ = {
@@ -33,7 +36,7 @@ class Kopfzeile(gtk.HBox):
 		self._db = db
 
 		gtk.HBox.__init__(self, homogeneous = False, spacing = 3)
-		logging.info("libkopfzeile, init")
+		_moduleLogger.info("libkopfzeile, init")
 
 		categoryHBox = gtk.HBox()
 		self.pack_start(categoryHBox, expand = False, fill = True, padding = 0)
@@ -57,7 +60,7 @@ class Kopfzeile(gtk.HBox):
 		self._searchEntry.connect("changed", self.search_entry_changed, None)
 
 	def category_combo_changed(self, widget = None, data = None):
-		logging.debug("comboCategoryChanged")
+		_moduleLogger.debug("comboCategoryChanged")
 		if self._lastCategory != self.categoryCombo.get_active():
 			sql = "UPDATE categories SET liste = ? WHERE id = 1"
 			self._db.speichereSQL(sql, (self.categoryCombo.get_active(), ))
@@ -65,7 +68,7 @@ class Kopfzeile(gtk.HBox):
 		self.emit("reload_notes")
 
 	def search_entry_changed(self, widget = None, data = None):
-		logging.debug("search_entry_changed")
+		_moduleLogger.debug("search_entry_changed")
 		self.emit("reload_notes")
 
 	def get_category(self):
