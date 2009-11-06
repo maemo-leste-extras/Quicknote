@@ -20,6 +20,7 @@ try:
 except ImportError:
 	gtkspell = None
 
+import hildonize
 import simple_list
 
 
@@ -48,10 +49,10 @@ class Notizen(gtk.HBox):
 		# Note list
 		self._noteslist = simple_list.SimpleList()
 		self._noteslist.set_eventfunction_cursor_changed(self._update_noteslist)
-		self._noteslist.set_size_request(250, -1)
+		self._noteslist.widget.set_size_request(250, -1)
 
 		frame = gtk.Frame(_("Titles"))
-		frame.add(self._noteslist)
+		frame.add(self._noteslist.widget)
 
 		buttonHBox = gtk.HBox()
 
@@ -82,6 +83,7 @@ class Notizen(gtk.HBox):
 		self._noteScrollWindow = gtk.ScrolledWindow()
 		self._noteScrollWindow.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 		self._noteScrollWindow.add(self._noteBodyView)
+		hildonize.hildonize_scrollwindow_with_viewport(self._noteScrollWindow)
 
 		frame = gtk.Frame(_("Note"))
 		frame.add(self._noteScrollWindow)

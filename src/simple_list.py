@@ -22,12 +22,10 @@ except NameError:
 	_ = lambda x: x
 
 
-class SimpleList(gtk.ScrolledWindow):
+class SimpleList(object):
 	"""
 	Stellt eine einfache Liste mit Laufbalken dar. Das wird mit
 	den Objekten ScrolledWindow und TreeView erreicht.
-
-	@todo Decouple SimpleList from scrolled window to be able to hildonize it
 	"""
 
 	KEY_IDX = 0
@@ -37,18 +35,10 @@ class SimpleList(gtk.ScrolledWindow):
 		"""
 		Initialisieren
 		"""
-
-		gtk.ScrolledWindow.__init__(self)
 		self._selectedItem = None # (<Position>, <Key>, <Value>)
 
-		# Liste
-		self._itemlist = gtk.ListStore(str, str)
-
-		# ScrolledWindow
-		self.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
-		self.set_shadow_type(gtk.SHADOW_IN)
-
 		# Treeview
+		self._itemlist = gtk.ListStore(str, str)
 		self._itemView = gtk.TreeView(self._itemlist)
 		self._itemView.set_headers_visible(False)
 		self._itemView.get_selection().set_mode(gtk.SELECTION_BROWSE)
@@ -77,9 +67,19 @@ class SimpleList(gtk.ScrolledWindow):
 		# wie ich das möchte. Deshalb habe ich die Suche abgeschaltet.
 		self._itemView.set_enable_search(False)
 
+		# ScrolledWindow
+		self._scrolledWindow = gtk.ScrolledWindow()
+		self._scrolledWindow.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
+		self._scrolledWindow.set_shadow_type(gtk.SHADOW_IN)
+
 		# Anzeigen
-		self.add(self._itemView)
-		self.show()
+		self._scrolledWindow.add(self._itemView)
+		self._scrolledWindow = hildonize.hildonize_scrollwindow(self._scrolledWindow)
+		self._scrolledWindow.show()
+
+	@property
+	def widget(self):
+		return self._scrolledWindow
 
 	def append_item(self, value, key = ""):
 		"""
