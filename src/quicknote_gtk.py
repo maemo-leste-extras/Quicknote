@@ -84,7 +84,7 @@ class QuicknoteProgram(hildonize.get_app_class()):
 		#Create GUI main vbox
 		vbox = gtk.VBox(homogeneous = False, spacing = 0)
 
-		if not hildonize.IS_FREMANTLE_SUPPORTED:
+		if hildonize.GTK_MENU_USED:
 			#Create Menu and apply it for hildon
 			filemenu = gtk.Menu()
 
@@ -164,7 +164,7 @@ class QuicknoteProgram(hildonize.get_app_class()):
 		self._window = gtk.Window()
 		self._window.add(vbox)
 
-		self._window.connect("delete_event", self._on_delete_event)
+		self._window.connect("delete-event", self._on_delete_event)
 		self._window.connect("destroy", self._on_destroy)
 		self._window.connect("key-press-event", self._on_key_press)
 		self._window.connect("window-state-event", self._on_window_state_change)
@@ -179,12 +179,15 @@ class QuicknoteProgram(hildonize.get_app_class()):
 
 		self._window = hildonize.hildonize_window(self, self._window)
 		hildonize.set_application_title(self._window, "%s" % constants.__pretty_app_name__)
-		if not hildonize.IS_FREMANTLE_SUPPORTED:
+		if hildonize.GTK_MENU_USED:
 			menu_bar = hildonize.hildonize_menu(
 				self._window,
 				menu_bar,
 				[]
 			)
+
+		if not hildonize.IS_HILDON_SUPPORTED:
+			_moduleLogger.info("No hildonization support")
 
 		self._prepare_sync_dialog()
 
