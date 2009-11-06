@@ -93,7 +93,7 @@ def build_package(distribution):
 	p = py2deb.Py2deb(__appname__)
 	p.prettyName = constants.__pretty_app_name__
 	p.description = __description__
-	p.bugTracker = "https://bugs.maemo.org/enter_bug.cgi?product=ejpi"
+	p.bugTracker = "https://bugs.maemo.org/enter_bug.cgi?product=quicknote"
 	p.upgradeDescription = __changelog__.split("\n\n", 1)[0]
 	p.author = __author__
 	p.mail = __email__
@@ -128,8 +128,8 @@ def build_package(distribution):
 		"debian": "26x26-quicknote.png",
 		"chinook": "26x26-quicknote.png",
 		"diablo": "26x26-quicknote.png",
-		"fremantle": "64x64-quicknote.png", # Fremantle natively uses 48x48
-		"mer": "64x64-quicknote.png",
+		"fremantle": "48x48-quicknote.png", # Fremantle natively uses 48x48
+		"mer": "48x48-quicknote.png",
 	}[distribution]
 	p["/usr/bin"] = [ "quicknote.py" ]
 	for relPath, files in unflatten_files(find_files(".", "locale")).iteritems():

@@ -10,7 +10,10 @@ BUILD_PATH=./builddeb/
 
 TEXT_DOMAIN=$(PROJECT_NAME)
 POTFILES=$(wildcard src/quicknoteclasses/*.py)
+TAG_FILE=~/.ctags/$(PROJECT_NAME).tags
+TODO_FILE=./TODO
 
+DEBUGGER=winpdb
 UNIT_TEST=nosetests --with-doctest -w .
 SYNTAX_TEST=support/test_syntax.py
 STYLE_TEST=../../Python/tools/pep8.py --ignore=W191,E501
@@ -58,21 +61,36 @@ build_mo:
 
 build: $(OBJ) build_mo
 	rm -Rf $(BUILD_PATH)
-	mkdir $(BUILD_PATH)
-	cp $(PROGRAM)  $(BUILD_PATH)
-	cp src/constants.py $(BUILD_PATH)
-	$(foreach file, $(DATA), cp $(file) $(BUILD_PATH)/$(subst /,-,$(file)) ; )
-	$(foreach file, $(SOURCE), cp $(file) $(BUILD_PATH)/$(subst /,-,$(file)) ; )
-	$(foreach file, $(OBJ), cp $(file) $(BUILD_PATH)/$(subst /,-,$(file)) ; )
-	$(foreach file, $(LOCALE_FILES), cp $(file) $(BUILD_PATH)/$(subst /,-,$(file)) ; )
-	cp data/$(PROJECT_NAME).desktop $(BUILD_PATH)
-	cp data/$(PROJECT_NAME).service $(BUILD_PATH)
-	cp data/low/$(PROJECT_NAME).png $(BUILD_PATH)/26x26-$(PROJECT_NAME).png
-	cp data/40/$(PROJECT_NAME).png $(BUILD_PATH)/40x40-$(PROJECT_NAME).png
-	cp data/48/$(PROJECT_NAME).png $(BUILD_PATH)/48x48-$(PROJECT_NAME).png
-	cp data/scale/$(PROJECT_NAME).png $(BUILD_PATH)/scale-$(PROJECT_NAME).png
-	cp support/builddeb.py $(BUILD_PATH)
-	cp support/fake_py2deb.py $(BUILD_PATH)
+
+	mkdir -p $(BUILD_PATH)/generic
+	cp $(SOURCE_PATH)/constants.py $(BUILD_PATH)/generic
+	cp $(PROGRAM)  $(BUILD_PATH)/generic
+	$(foreach file, $(DATA), cp $(file) $(BUILD_PATH)/generic/$(subst /,-,$(file)) ; )
+	$(foreach file, $(SOURCE), cp $(file) $(BUILD_PATH)/generic/$(subst /,-,$(file)) ; )
+	#$(foreach file, $(OBJ), cp $(file) $(BUILD_PATH)/generic/$(subst /,-,$(file)) ; )
+	$(foreach file, $(LOCALE_FILES), cp $(file) $(BUILD_PATH)/generic/$(subst /,-,$(file)) ; )
+	cp data/$(PROJECT_NAME).desktop $(BUILD_PATH)/generic
+	cp data/$(PROJECT_NAME).service $(BUILD_PATH)/generic
+	cp data/low/$(PROJECT_NAME).png $(BUILD_PATH)/generic/26x26-$(PROJECT_NAME).png
+	cp data/40/$(PROJECT_NAME).png $(BUILD_PATH)/generic/40x40-$(PROJECT_NAME).png
+	cp data/48/$(PROJECT_NAME).png $(BUILD_PATH)/generic/48x48-$(PROJECT_NAME).png
+	cp data/scale/$(PROJECT_NAME).png $(BUILD_PATH)/generic/scale-$(PROJECT_NAME).png
+	cp support/builddeb.py $(BUILD_PATH)/generic
+	cp support/py2deb.py $(BUILD_PATH)/generic
+	cp support/fake_py2deb.py $(BUILD_PATH)/generic
+
+	mkdir -p $(BUILD_PATH)/chinook
+	cp -R $(BUILD_PATH)/generic/* $(BUILD_PATH)/chinook
+	cd $(BUILD_PATH)/chinook ; python builddeb.py chinook
+	mkdir -p $(BUILD_PATH)/diablo
+	cp -R $(BUILD_PATH)/generic/* $(BUILD_PATH)/diablo
+	cd $(BUILD_PATH)/diablo ; python builddeb.py diablo
+	mkdir -p $(BUILD_PATH)/fremantle
+	cp -R $(BUILD_PATH)/generic/* $(BUILD_PATH)/fremantle
+	cd $(BUILD_PATH)/fremantle ; python builddeb.py fremantle
+	mkdir -p $(BUILD_PATH)/mer
+	cp -R $(BUILD_PATH)/generic/* $(BUILD_PATH)/mer
+	cd $(BUILD_PATH)/mer ; python builddeb.py mer
 
 lint: $(OBJ)
 	$(foreach file, $(SOURCE), $(LINT) $(file) ; )
