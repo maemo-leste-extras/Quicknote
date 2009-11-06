@@ -97,7 +97,7 @@ def build_package(distribution):
 	p.upgradeDescription = __changelog__.split("\n\n", 1)[0]
 	p.author = __author__
 	p.mail = __email__
-	p.license = "lgpl"
+	p.license = "gpl"
 	p.depends = ", ".join([
 		"python2.6 | python2.5",
 		"python-gtk2 | python2.5-gtk2",
