@@ -25,10 +25,8 @@ import gtk
 
 try:
 	import hildon
-	IS_HILDON = True
 except ImportError:
 	import fakehildon as hildon
-	IS_HILDON = False
 
 try:
 	import osso
@@ -60,20 +58,11 @@ class QuicknoteProgram(hildonize.get_app_class()):
 
 	def __init__(self):
 		super(QuicknoteProgram, self).__init__()
-		if IS_HILDON:
-			gtk.set_application_name(constants.__pretty_app_name__)
 
 		dblog = os.path.join(self._user_data, "quicknote.log")
 
 		_moduleLogger.info('Starting quicknote')
-
-		if osso is not None:
-			self._osso_c = osso.Context(constants.__app_name__, constants.__version__, False)
-			self._deviceState = osso.DeviceState(self._osso_c)
-			self._deviceState.set_device_state_callback(self._on_device_state_change, 0)
-		else:
-			self._osso_c = None
-			self._deviceState = None
+		self._wordWrapEnabled = False
 
 		self._window_in_fullscreen = False #The window isn't in full screen mode initially.
 		self._isZoomEnabled = False
@@ -127,7 +116,6 @@ class QuicknoteProgram(hildonize.get_app_class()):
 			menu_items = gtk.MenuItem(_("Word Wrap"))
 			viewmenu.append(menu_items)
 			menu_items.connect("activate", self._on_toggle_word_wrap, None)
-			self._wordWrapEnabled = False
 
 			view_menu = gtk.MenuItem(_("View"))
 			view_menu.show()
@@ -188,6 +176,15 @@ class QuicknoteProgram(hildonize.get_app_class()):
 
 		if not hildonize.IS_HILDON_SUPPORTED:
 			_moduleLogger.info("No hildonization support")
+
+		if osso is not None:
+			self._osso_c = osso.Context(constants.__app_name__, constants.__version__, False)
+			self._deviceState = osso.DeviceState(self._osso_c)
+			self._deviceState.set_device_state_callback(self._on_device_state_change, 0)
+		else:
+			_moduleLogger.info("No osso support")
+			self._osso_c = None
+			self._deviceState = None
 
 		self._prepare_sync_dialog()
 
