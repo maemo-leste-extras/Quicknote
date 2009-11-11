@@ -9,17 +9,22 @@ it under the terms of the GNU General Public License version 2 as
 published by the Free Software Foundation.
 """
 
+import logging
 
 import pango
 import gtk
 
 import hildonize
+import gtk_toolbox
 
 
 try:
 	_
 except NameError:
 	_ = lambda x: x
+
+
+_moduleLogger = logging.getLogger("simple_list")
 
 
 class SimpleList(object):
@@ -41,7 +46,7 @@ class SimpleList(object):
 		self._itemlist = gtk.ListStore(str, str)
 		self._itemView = gtk.TreeView(self._itemlist)
 		self._itemView.set_headers_visible(False)
-		self._itemView.get_selection().set_mode(gtk.SELECTION_BROWSE)
+		self._itemView.get_selection().set_mode(gtk.SELECTION_SINGLE)
 		self._itemView.connect("cursor-changed", self._on_cursor_changed)
 		self._itemView.connect("row-activated", self._on_row_activated)
 		self._itemView.show()
@@ -121,11 +126,13 @@ class SimpleList(object):
 		"""
 
 		self._itemView.connect("cursor-changed", function)
+		self._itemView.connect("row-activated", function)
 
+	@gtk_toolbox.log_exception(_moduleLogger)
 	def _on_row_activated(self, treeview, path, view_column, data = None):
 		"""
-		Setzt den Wert von self._selectedItems. Dieser Wert kann
-		mit der Methode "get_selection_data" abgerufen werden.
+		Sets the value of self._selectedItems. This value can
+		be retrieved using the method "get_selection_data.
 		"""
 
 		iter = self._itemlist.get_iter(path)
@@ -138,10 +145,11 @@ class SimpleList(object):
 			self._itemlist.get_value(iter, self.VALUE_IDX) # Value
 		)
 
+	@gtk_toolbox.log_exception(_moduleLogger)
 	def _on_cursor_changed(self, widget, data1 = None, data2 = None):
 		"""
-		Setzt den Wert von self._selectedItems. Dieser Wert kann
-		mit der Methode "get_selection_data" abgerufen werden.
+		Sets the value of self._selectedItems. This value can
+		be retrieved using the method "get_selection_data.
 		"""
 
 		selection = widget.get_selection()

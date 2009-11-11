@@ -7,6 +7,9 @@
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 2 as
 published by the Free Software Foundation.
+
+@todo It would be nice to move the category selector to the category list's column and search below everything.
+@todo Search would be activated by menu or CTRL+F rather than zoom
 """
 
 import time
@@ -21,6 +24,7 @@ except ImportError:
 	gtkspell = None
 
 import hildonize
+import gtk_toolbox
 import simple_list
 
 
@@ -51,9 +55,6 @@ class Notizen(gtk.HBox):
 		self._noteslist.set_eventfunction_cursor_changed(self._update_noteslist)
 		self._noteslist.widget.set_size_request(250, -1)
 
-		frame = gtk.Frame(_("Titles"))
-		frame.add(self._noteslist.widget)
-
 		buttonHBox = gtk.HBox()
 
 		button = gtk.Button(stock = gtk.STOCK_ADD)
@@ -65,7 +66,7 @@ class Notizen(gtk.HBox):
 		buttonHBox.pack_start(button, expand = True, fill = True, padding = 3)
 
 		listVbox = gtk.VBox(homogeneous = False, spacing = 0)
-		listVbox.pack_start(frame, expand = True, fill = True, padding = 3)
+		listVbox.pack_start(self._noteslist.widget, expand = True, fill = True, padding = 3)
 		listVbox.pack_start(buttonHBox, expand = False, fill = True, padding = 3)
 		self.pack_start(listVbox, expand = False, fill = True, padding = 3)
 
@@ -85,9 +86,6 @@ class Notizen(gtk.HBox):
 		self._noteScrollWindow.add(self._noteBodyView)
 		hildonize.hildonize_scrollwindow_with_viewport(self._noteScrollWindow)
 
-		frame = gtk.Frame(_("Note"))
-		frame.add(self._noteScrollWindow)
-
 		# History
 		self._historyBox = gtk.HBox(homogeneous = False, spacing = 0)
 
@@ -101,7 +99,7 @@ class Notizen(gtk.HBox):
 
 		# Note and history stuff in same column
 		noteVbox = gtk.VBox(homogeneous = False, spacing = 0)
-		noteVbox.pack_start(frame, expand = True, fill = True, padding = 3)
+		noteVbox.pack_start(self._noteScrollWindow, expand = True, fill = True, padding = 3)
 		noteVbox.pack_start(self._historyBox, expand = False, fill = True, padding = 3)
 		self.pack_start(noteVbox, expand = True, fill = True, padding = 3)
 
@@ -177,9 +175,14 @@ class Notizen(gtk.HBox):
 		self._noteBodyView.grab_focus()
 		return False
 
-	def _update_noteslist(self, data = None, data2 = None):
+	def _update_noteslist(self, *args):
 		if self._pos != -1:
 			self.save_note()
+
+		if args:
+			data = args[0]
+		else:
+			data = None
 
 		try:
 			(pos, key, value) = self._noteslist.get_selection_data()
@@ -207,6 +210,7 @@ class Notizen(gtk.HBox):
 
 		gobject.timeout_add(200, self._set_focus)
 
+	@gtk_toolbox.log_exception(_moduleLogger)
 	def _on_note_changed(self, widget = None, data = None):
 		if self._pos == -1 or self.noteId == -1:
 			return
@@ -219,9 +223,11 @@ class Notizen(gtk.HBox):
 		if value != title:
 			self._noteslist.change_item(self._pos, title, self.noteId)
 
+	@gtk_toolbox.log_exception(_moduleLogger)
 	def _on_add_note(self, widget = None, data = None):
 		self._update_noteslist("new")
 
+	@gtk_toolbox.log_exception(_moduleLogger)
 	def _on_delete_note(self, widget = None, data = None):
 		if (self.noteId == -1):
 			return
@@ -236,6 +242,7 @@ class Notizen(gtk.HBox):
 			self._pos = -1
 			self._noteBodyView.get_buffer().set_text("")
 
+	@gtk_toolbox.log_exception(_moduleLogger)
 	def _on_show_history(self, widget = None, data = None, label = None):
 		if self.noteId == -1:
 			mbox =  gtk.MessageDialog(None, gtk.DIALOG_MODAL, gtk.MESSAGE_INFO, gtk.BUTTONS_OK, _("No note selected."))

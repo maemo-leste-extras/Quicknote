@@ -35,6 +35,7 @@ except ImportError:
 
 import constants
 import hildonize
+import gtk_toolbox
 
 import speichern
 import kopfzeile
@@ -48,7 +49,7 @@ except NameError:
 	_ = lambda x: x
 
 
-_moduleLogger = logging.getLogger("quick")
+_moduleLogger = logging.getLogger("quicknote_gtk")
 
 
 class QuicknoteProgram(hildonize.get_app_class()):
@@ -152,12 +153,8 @@ class QuicknoteProgram(hildonize.get_app_class()):
 		self._window = gtk.Window()
 		self._window.add(vbox)
 
-		self._window.connect("delete-event", self._on_delete_event)
-		self._window.connect("destroy", self._on_destroy)
-		self._window.connect("key-press-event", self._on_key_press)
-		self._window.connect("window-state-event", self._on_window_state_change)
-
 		self._on_toggle_word_wrap()
+		self.enable_zoom(True)
 
 		try:
 			os.makedirs(self._user_data)
@@ -187,6 +184,11 @@ class QuicknoteProgram(hildonize.get_app_class()):
 			self._deviceState = None
 
 		self._prepare_sync_dialog()
+
+		self._window.connect("delete-event", self._on_delete_event)
+		self._window.connect("destroy", self._on_destroy)
+		self._window.connect("key-press-event", self._on_key_press)
+		self._window.connect("window-state-event", self._on_window_state_change)
 
 		self._window.show_all()
 		self._load_settings()
@@ -269,6 +271,7 @@ class QuicknoteProgram(hildonize.get_app_class()):
 			self._topBox.show()
 			self._notizen.show_history_area(True)
 
+	@gtk_toolbox.log_exception(_moduleLogger)
 	def _on_device_state_change(self, shutdown, save_unsaved_data, memory_low, system_inactivity, message, userData):
 		"""
 		For system_inactivity, we have no background tasks to pause
@@ -281,30 +284,40 @@ class QuicknoteProgram(hildonize.get_app_class()):
 		if save_unsaved_data or shutdown:
 			self._save_settings()
 
+	@gtk_toolbox.log_exception(_moduleLogger)
 	def _on_window_state_change(self, widget, event, *args):
 		if event.new_window_state & gtk.gdk.WINDOW_STATE_FULLSCREEN:
 			self._window_in_fullscreen = True
 		else:
 			self._window_in_fullscreen = False
 
+	@gtk_toolbox.log_exception(_moduleLogger)
 	def _on_key_press(self, widget, event, *args):
 		RETURN_TYPES = (gtk.keysyms.Return, gtk.keysyms.ISO_Enter, gtk.keysyms.KP_Enter)
+		isCtrl = bool(event.get_state() & gtk.gdk.CONTROL_MASK)
 		if (
 			event.keyval == gtk.keysyms.F6 or
-			event.keyval in RETURN_TYPES and event.get_state() & gtk.gdk.CONTROL_MASK
+			event.keyval in RETURN_TYPES and isCtrl
 		):
 			# The "Full screen" hardware key has been pressed 
 			if self._window_in_fullscreen:
 				self._window.unfullscreen ()
 			else:
 				self._window.fullscreen ()
-		elif event.keyval == gtk.keysyms.F7:
+		elif (
+			event.keyval == gtk.keysyms.F7 or
+			event.keyval == gtk.keysyms.i and isCtrl
+		):
 			# Zoom In
 			self.enable_zoom(True)
-		elif event.keyval == gtk.keysyms.F8:
+		elif (
+			event.keyval == gtk.keysyms.F8 or
+			event.keyval == gtk.keysyms.o and isCtrl
+		):
 			# Zoom Out
 			self.enable_zoom(False)
 
+	@gtk_toolbox.log_exception(_moduleLogger)
 	def _on_view_sql_history(self, widget = None, data = None, data2 = None):
 		import sqldialog
 		sqldiag = sqldialog.SqlDialog(self._db)
@@ -323,6 +336,7 @@ class QuicknoteProgram(hildonize.get_app_class()):
 
 		sqldiag.destroy()
 
+	@gtk_toolbox.log_exception(_moduleLogger)
 	def _on_move_category(self, widget = None, data = None):
 		dialog = gtk.Dialog(_("Choose category"), self._window, gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT, gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
 
@@ -361,6 +375,7 @@ class QuicknoteProgram(hildonize.get_app_class()):
 
 		dialog.destroy()
 
+	@gtk_toolbox.log_exception(_moduleLogger)
 	def _on_delete_category(self, widget = None, data = None):
 		if self._topBox.get_category() == "%" or self._topBox.get_category() == "undefined":
 			mbox = gtk.MessageDialog(None, gtk.DIALOG_MODAL, gtk.MESSAGE_ERROR, gtk.BUTTONS_OK, _("This category can not be deleted"))
@@ -384,21 +399,26 @@ class QuicknoteProgram(hildonize.get_app_class()):
 				self._topBox.categoryCombo.remove_text(pos)
 				self._topBox.categoryCombo.set_active(0)
 
+	@gtk_toolbox.log_exception(_moduleLogger)
 	def _on_sync_finished(self, data = None, data2 = None):
 		self._topBox.load_categories()
 		self._notizen.load_notes()
 
+	@gtk_toolbox.log_exception(_moduleLogger)
 	def _on_sync_notes(self, widget = None, data = None):
 		self._syncDialog.run()
 		self._syncDialog.hide()
 
+	@gtk_toolbox.log_exception(_moduleLogger)
 	def _on_toggle_word_wrap(self, *args):
 		self._wordWrapEnabled = not self._wordWrapEnabled
 		self._notizen.set_wordwrap(self._wordWrapEnabled)
 
+	@gtk_toolbox.log_exception(_moduleLogger)
 	def _on_delete_event(self, widget, event, data = None):
 		return False
 
+	@gtk_toolbox.log_exception(_moduleLogger)
 	def _on_destroy(self, widget = None, data = None):
 		try:
 			self._save_settings()
@@ -408,6 +428,7 @@ class QuicknoteProgram(hildonize.get_app_class()):
 		finally:
 			gtk.main_quit()
 
+	@gtk_toolbox.log_exception(_moduleLogger)
 	def _on_show_about(self, widget = None, data = None):
 		dialog = gtk.AboutDialog()
 		dialog.set_position(gtk.WIN_POS_CENTER)
