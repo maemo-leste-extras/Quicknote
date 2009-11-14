@@ -29,8 +29,7 @@ if __name__ == "__main__":
 		if e.errno != 17:
 			raise
 
-	userLogPath = "%s/quicknote.log" % constants._data_path_
-	logging.basicConfig(level=logging.DEBUG, filename=userLogPath)
+	logging.basicConfig(level=logging.DEBUG, filename=constants._user_logpath_)
 	_moduleLogger.info("quicknote %s-%s" % (constants.__version__, constants.__build__))
 
 	app = quicknote_gtk.QuicknoteProgram()

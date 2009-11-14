@@ -59,6 +59,7 @@ class QuicknoteProgram(hildonize.get_app_class()):
 
 	def __init__(self):
 		super(QuicknoteProgram, self).__init__()
+		self._clipboard = gtk.clipboard_get()
 
 		dblog = os.path.join(self._user_data, "quicknote.log")
 
@@ -316,6 +317,11 @@ class QuicknoteProgram(hildonize.get_app_class()):
 		):
 			# Zoom Out
 			self.enable_zoom(False)
+		elif event.keyval == ord("l") and event.get_state() & gtk.gdk.CONTROL_MASK:
+			with open(constants._user_logpath_, "r") as f:
+				logLines = f.xreadlines()
+				log = "".join(logLines)
+				self._clipboard.set_text(str(log))
 
 	@gtk_toolbox.log_exception(_moduleLogger)
 	def _on_view_sql_history(self, widget = None, data = None, data2 = None):

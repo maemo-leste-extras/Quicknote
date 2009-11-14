@@ -149,12 +149,13 @@ class Notizen(gtk.HBox):
 		if buf == self._noteBody:
 			return
 
-		_moduleLogger.info("Saving note: "+buf)
+		title = self._get_title(buf)
+		_moduleLogger.info("Saving note: " + title)
 		if self._pos == -1 or self.noteId == -1:
 			self._pos = -1
 			self.noteId = str(uuid.uuid4())
 			self._db.saveNote(self.noteId, buf, self._categoryName)
-			self._noteslist.append_item(self._get_title(buf), self.noteId)
+			self._noteslist.append_item(title, self.noteId)
 			self._pos = self._noteslist.select_last_item()
 		else:
 			self._db.saveNote(self.noteId, buf, self._categoryName)
