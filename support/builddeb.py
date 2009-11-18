@@ -24,6 +24,10 @@ __changelog__ = """
 0.7.8
  * Spell checking
  * Fixing the application title
+ * Fremantle Support
+ * Ctrl+i and Ctrl+o to zoom in/out the interface
+ * Ctrl+enter to fullscreen app
+ * Ctrl+l to copy to clipboard the application debug log
 
 0.7.7
  * Slight modifications to the note history and SQL dialogs
