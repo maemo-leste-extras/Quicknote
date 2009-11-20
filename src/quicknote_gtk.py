@@ -444,12 +444,18 @@ class QuicknoteProgram(hildonize.get_app_class()):
 		dialog.set_website("http://axique.de/index.php?f=Quicknote")
 		comments = _("%s is a note taking program; it is optimised for quick save and search of notes") % constants.__pretty_app_name__
 		dialog.set_comments(comments)
-		dialog.set_authors(["Christoph Wurstle <n800@axique.net>", "Ed Page <edpage@byu.net> (Blame him for the most recent bugs)"])
+		dialog.set_authors(["Christoph Wurstle <n800@axique.net>", "Ed Page <eopage@byu.net> (Blame him for the most recent bugs)"])
 		dialog.run()
 		dialog.destroy()
 
 
-if __name__ == "__main__":
-	logging.basicConfig(level=logging.DEBUG)
+def run_quicknote():
+	if hildonize.IS_HILDON_SUPPORTED:
+		gtk.set_application_name(constants.__pretty_app_name__)
 	app = QuicknoteProgram()
 	app.main()
+
+
+if __name__ == "__main__":
+	logging.basicConfig(level=logging.DEBUG)
+	run_quicknote()
