@@ -427,10 +427,17 @@ class QuicknoteProgram(hildonize.get_app_class()):
 	@gtk_toolbox.log_exception(_moduleLogger)
 	def _on_destroy(self, widget = None, data = None):
 		try:
-			self._save_settings()
 			self._db.close()
-			if self._osso_c:
+			self._save_settings()
+
+			try:
+				self._deviceState.close()
+			except AttributeError:
+				pass # Either None or close was removed (in Fremantle)
+			try:
 				self._osso_c.close()
+			except AttributeError:
+				pass # Either None or close was removed (in Fremantle)
 		finally:
 			gtk.main_quit()
 
