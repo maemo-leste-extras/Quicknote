@@ -133,15 +133,23 @@ class QuicknoteProgram(hildonize.get_app_class()):
 			help_menu.show()
 			help_menu.set_submenu(helpmenu)
 
-			menu_bar = gtk.MenuBar()
-			menu_bar.show()
-			menu_bar.append (file_menu)
-			menu_bar.append (category_menu)
-			menu_bar.append (view_menu)
-			menu_bar.append (help_menu)
+			menuBar = gtk.MenuBar()
+			menuBar.show()
+			menuBar.append (file_menu)
+			menuBar.append (category_menu)
+			menuBar.append (view_menu)
+			menuBar.append (help_menu)
 
-			menu_bar.show()
-			vbox.pack_start(menu_bar, False, False, 0)
+			vbox.pack_start(menuBar, False, False, 0)
+		else:
+			menuBar = gtk.MenuBar()
+			menuBar.show()
+
+			moveToCategoryButton = gtk.Button(_("Move To Category"))
+			moveToCategoryButton.connect("clicked", self._on_move_category, None)
+
+			deleteCategoryButton = gtk.Button(_("Delete Category"))
+			deleteCategoryButton.connect("clicked", self._on_delete_category, None)
 
 		#Create GUI elements
 		self._topBox = kopfzeile.Kopfzeile(self._db)
@@ -165,12 +173,13 @@ class QuicknoteProgram(hildonize.get_app_class()):
 
 		self._window = hildonize.hildonize_window(self, self._window)
 		hildonize.set_application_title(self._window, "%s" % constants.__pretty_app_name__)
-		if hildonize.GTK_MENU_USED:
-			menu_bar = hildonize.hildonize_menu(
-				self._window,
-				menu_bar,
-				[]
-			)
+		menuBar = hildonize.hildonize_menu(
+			self._window,
+			menuBar,
+		)
+		if hildonize.IS_FREMANTLE_SUPPORTED:
+			menuBar.append(moveToCategoryButton)
+			menuBar.append(deleteCategoryButton)
 
 		if not hildonize.IS_HILDON_SUPPORTED:
 			_moduleLogger.info("No hildonization support")
@@ -343,7 +352,7 @@ class QuicknoteProgram(hildonize.get_app_class()):
 		sqldiag.destroy()
 
 	@gtk_toolbox.log_exception(_moduleLogger)
-	def _on_move_category(self, widget = None, data = None):
+	def _on_move_category(self, *args):
 		comboCategory = gtk.combo_box_new_text()
 		comboCategory.append_text('undefined')
 		sql = "SELECT id, liste FROM categories WHERE id = 0 ORDER BY liste"
@@ -383,7 +392,7 @@ class QuicknoteProgram(hildonize.get_app_class()):
 			mbox.destroy()
 
 	@gtk_toolbox.log_exception(_moduleLogger)
-	def _on_delete_category(self, widget = None, data = None):
+	def _on_delete_category(self, *args):
 		if self._topBox.get_category() == "%" or self._topBox.get_category() == "undefined":
 			mbox = gtk.MessageDialog(None, gtk.DIALOG_MODAL, gtk.MESSAGE_ERROR, gtk.BUTTONS_OK, _("This category can not be deleted"))
 			response = mbox.run()
