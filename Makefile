@@ -91,11 +91,15 @@ build: $(OBJ) build_mo
 	mkdir -p $(BUILD_PATH)/mer
 	cp -R $(BUILD_PATH)/generic/* $(BUILD_PATH)/mer
 	cd $(BUILD_PATH)/mer ; python builddeb.py mer
+	mkdir -p $(BUILD_PATH)/debian
+	cp -R $(BUILD_PATH)/generic/* $(BUILD_PATH)/debian
+	cd $(BUILD_PATH)/debian ; python builddeb.py debian
 
 upload: build
 	dput fremantle-extras-builder $(BUILD_PATH)/fremantle/$(PROJECT_NAME)*.changes
 	dput diablo-extras-builder $(BUILD_PATH)/diablo/$(PROJECT_NAME)*.changes
 	dput chinook-extras-builder $(BUILD_PATH)/chinook/$(PROJECT_NAME)*.changes
+	cp $(BUILD_PATH)/debian/*.deb ../www/$(PROJECT_NAME).deb
 
 lint: $(OBJ)
 	$(foreach file, $(SOURCE), $(LINT) $(file) ; )
