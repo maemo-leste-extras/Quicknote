@@ -344,42 +344,43 @@ class QuicknoteProgram(hildonize.get_app_class()):
 
 	@gtk_toolbox.log_exception(_moduleLogger)
 	def _on_move_category(self, widget = None, data = None):
-		dialog = gtk.Dialog(_("Choose category"), self._window, gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT, gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
-
-		dialog.set_position(gtk.WIN_POS_CENTER)
 		comboCategory = gtk.combo_box_new_text()
-
 		comboCategory.append_text('undefined')
 		sql = "SELECT id, liste FROM categories WHERE id = 0 ORDER BY liste"
 		rows = self._db.ladeSQL(sql)
 		for row in rows:
 			comboCategory.append_text(row[1])
 
-		dialog.vbox.pack_start(comboCategory, True, True, 0)
+		dialog = gtk.Dialog(_("Choose category"), self._window, gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT, gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+		try:
+			dialog.set_position(gtk.WIN_POS_CENTER)
 
-		dialog.vbox.show_all()
-		#dialog.set_size_request(400, 300)
+			dialog.vbox.pack_start(comboCategory, True, True, 0)
+			dialog.vbox.show_all()
 
-		if dialog.run() == gtk.RESPONSE_ACCEPT:
-			n = comboCategory.get_active()
-			if -1 < n and self._notizen.noteId != -1:
-				model = comboCategory.get_model()
-				active = comboCategory.get_active()
-				if active < 0:
-					return None
-				cat_id = model[active][0]
+			userResponse = dialog.run()
+		finally:
+			dialog.destroy()
 
-				noteid, category, note = self._db.loadNote(self._notizen.noteId)
-				#print noteid, category, cat_id
-				self._db.saveNote(noteid, note, cat_id, pcdatum = None)
-				self._topBox.category_combo_changed()
-			else:
-				mbox = gtk.MessageDialog(self._window, gtk.DIALOG_MODAL, gtk.MESSAGE_ERROR, gtk.BUTTONS_OK, _("No note selected."))
-				response = mbox.run()
-				mbox.hide()
-				mbox.destroy()
+		if userResponse != gtk.RESPONSE_ACCEPT:
+			return
 
-		dialog.destroy()
+		n = comboCategory.get_active()
+		if -1 < n and self._notizen.noteId != -1:
+			model = comboCategory.get_model()
+			active = comboCategory.get_active()
+			if active < 0:
+				return None
+			cat_id = model[active][0]
+
+			noteid, pcdatum, category, note = self._db.loadNote(self._notizen.noteId)
+			self._db.saveNote(noteid, note, cat_id, pcdatum = None)
+			self._topBox.category_combo_changed()
+		else:
+			mbox = gtk.MessageDialog(self._window, gtk.DIALOG_MODAL, gtk.MESSAGE_ERROR, gtk.BUTTONS_OK, _("No note selected."))
+			response = mbox.run()
+			mbox.hide()
+			mbox.destroy()
 
 	@gtk_toolbox.log_exception(_moduleLogger)
 	def _on_delete_category(self, widget = None, data = None):

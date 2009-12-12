@@ -165,7 +165,7 @@ class Speichern(object):
 
 	def loadNote(self, noteid):
 		if noteid is None or str(noteid) == "":
-			return (None, None, None)
+			return (None, None, None, None)
 		sql = "SELECT noteid, pcdatum, category, note FROM notes WHERE noteid = ?"
 		rows = self.ladeSQL(sql, (noteid, ))
 		if rows is None or len(rows) == 0:

@@ -21,6 +21,10 @@ __email__ = "n800@axique.net"
 __version__ = constants.__version__
 __build__ = constants.__build__
 __changelog__ = """
+0.7.9
+ * UI Tweak: Removed "New Note..." due to weirdness and duplicated behavior
+ * Bugfix: Move To Category
+
 0.7.8
  * Spell checking
  * Fixing the application title
