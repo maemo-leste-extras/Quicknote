@@ -314,23 +314,27 @@ class QuicknoteProgram(hildonize.get_app_class()):
 				self._window.unfullscreen ()
 			else:
 				self._window.fullscreen ()
+			return True
 		elif (
 			event.keyval == gtk.keysyms.F7 or
 			event.keyval == gtk.keysyms.i and isCtrl
 		):
 			# Zoom In
 			self.enable_zoom(True)
+			return True
 		elif (
 			event.keyval == gtk.keysyms.F8 or
 			event.keyval == gtk.keysyms.o and isCtrl
 		):
 			# Zoom Out
 			self.enable_zoom(False)
+			return True
 		elif event.keyval == ord("l") and event.get_state() & gtk.gdk.CONTROL_MASK:
 			with open(constants._user_logpath_, "r") as f:
 				logLines = f.xreadlines()
 				log = "".join(logLines)
 				self._clipboard.set_text(str(log))
+			return True
 
 	@gtk_toolbox.log_exception(_moduleLogger)
 	def _on_view_sql_history(self, widget = None, data = None, data2 = None):
