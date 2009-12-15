@@ -23,7 +23,10 @@ __build__ = constants.__build__
 __changelog__ = """
 0.7.9
  * UI Tweak: Removed "New Note..." due to weirdness and duplicated behavior
+ * UI Tweak: Added App Menu to access some category functionality
  * Bugfix: Move To Category
+ * Bugfix: Removed carriage return on Ctrl+Enter
+ * Added .deb package support
 
 0.7.8
  * Spell checking
