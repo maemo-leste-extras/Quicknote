@@ -144,12 +144,7 @@ class QuicknoteProgram(hildonize.get_app_class()):
 		else:
 			menuBar = gtk.MenuBar()
 			menuBar.show()
-
-			moveToCategoryButton = gtk.Button(_("Move To Category"))
-			moveToCategoryButton.connect("clicked", self._on_move_category, None)
-
-			deleteCategoryButton = gtk.Button(_("Delete Category"))
-			deleteCategoryButton.connect("clicked", self._on_delete_category, None)
+			vbox.pack_start(menuBar, False, False, 0)
 
 		#Create GUI elements
 		self._topBox = kopfzeile.Kopfzeile(self._db)
@@ -178,8 +173,15 @@ class QuicknoteProgram(hildonize.get_app_class()):
 			menuBar,
 		)
 		if hildonize.IS_FREMANTLE_SUPPORTED:
+			moveToCategoryButton = gtk.Button(_("Move To Category"))
+			moveToCategoryButton.connect("clicked", self._on_move_category, None)
 			menuBar.append(moveToCategoryButton)
+
+			deleteCategoryButton = gtk.Button(_("Delete Category"))
+			deleteCategoryButton.connect("clicked", self._on_delete_category, None)
 			menuBar.append(deleteCategoryButton)
+
+			menuBar.show_all()
 
 		if not hildonize.IS_HILDON_SUPPORTED:
 			_moduleLogger.info("No hildonization support")
