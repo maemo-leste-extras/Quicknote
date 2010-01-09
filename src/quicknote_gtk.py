@@ -105,10 +105,6 @@ class QuicknoteProgram(hildonize.get_app_class()):
 			categorymenu.append(menu_items)
 			menu_items.connect("activate", self._on_toggle_search)
 
-			menu_items = gtk.MenuItem(_("Move To Category"))
-			categorymenu.append(menu_items)
-			menu_items.connect("activate", self._on_move_category)
-
 			menu_items = gtk.MenuItem(_("Delete"))
 			categorymenu.append(menu_items)
 			menu_items.connect("activate", self._on_delete_category)
@@ -119,13 +115,17 @@ class QuicknoteProgram(hildonize.get_app_class()):
 
 			viewmenu = gtk.Menu()
 
-			menu_items = gtk.MenuItem(_("Word Wrap"))
+			menu_items = gtk.MenuItem(_("Move To Category"))
 			viewmenu.append(menu_items)
-			menu_items.connect("activate", self._on_toggle_word_wrap)
+			menu_items.connect("activate", self._on_move_category)
 
 			menu_items = gtk.MenuItem(_("History"))
 			viewmenu.append(menu_items)
 			menu_items.connect("activate", self._on_show_history)
+
+			menu_items = gtk.MenuItem(_("Word Wrap"))
+			viewmenu.append(menu_items)
+			menu_items.connect("activate", self._on_toggle_word_wrap)
 
 			view_menu = gtk.MenuItem(_("Note"))
 			view_menu.show()
