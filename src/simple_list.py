@@ -72,13 +72,17 @@ class SimpleList(object):
 		# wie ich das möchte. Deshalb habe ich die Suche abgeschaltet.
 		self._itemView.set_enable_search(False)
 
+		self._maemo5HackVBox = gtk.VBox()
+		self._maemo5HackVBox.pack_start(self._itemView)
+		self._maemo5HackViewport = gtk.Viewport()
+		self._maemo5HackViewport.add(self._maemo5HackVBox)
+
 		# ScrolledWindow
 		self._scrolledWindow = gtk.ScrolledWindow()
 		self._scrolledWindow.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
 		self._scrolledWindow.set_shadow_type(gtk.SHADOW_IN)
+		self._scrolledWindow.add(self._maemo5HackViewport)
 
-		# Anzeigen
-		self._scrolledWindow.add(self._itemView)
 		self._scrolledWindow = hildonize.hildonize_scrollwindow(self._scrolledWindow)
 		self._scrolledWindow.show()
 
