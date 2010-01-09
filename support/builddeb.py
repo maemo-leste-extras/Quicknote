@@ -35,7 +35,7 @@ __changelog__ = """
  * Added .deb package support
 
 0.7.8
- * Spell checking
+ * Spell checking (Desktop only)
  * Fixing the application title
  * Fremantle Support
  * Ctrl+i and Ctrl+o to zoom in/out the interface
