@@ -86,21 +86,9 @@ class Notizen(gtk.HBox):
 		self._noteScrollWindow.add(self._noteBodyView)
 		hildonize.hildonize_scrollwindow_with_viewport(self._noteScrollWindow)
 
-		# History
-		self._historyBox = gtk.HBox(homogeneous = False, spacing = 0)
-
-		self._historyStatusLabel = gtk.Label(_("No History"))
-		self._historyStatusLabel.set_alignment(0.0, 0.5)
-		self._historyBox.pack_start(self._historyStatusLabel, expand = True, fill = True, padding = 3)
-
-		button = gtk.Button(_("History"))
-		button.connect("clicked", self._on_show_history, None)
-		self._historyBox.pack_start(button, expand = True, fill = True, padding = 3)
-
 		# Note and history stuff in same column
 		noteVbox = gtk.VBox(homogeneous = False, spacing = 0)
 		noteVbox.pack_start(self._noteScrollWindow, expand = True, fill = True, padding = 3)
-		noteVbox.pack_start(self._historyBox, expand = False, fill = True, padding = 3)
 		self.pack_start(noteVbox, expand = True, fill = True, padding = 3)
 
 		self.load_notes()
@@ -113,12 +101,6 @@ class Notizen(gtk.HBox):
 		else:
 			self._noteScrollWindow.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 			self._noteBodyView.set_wrap_mode(gtk.WRAP_NONE)
-
-	def show_history_area(self, visible):
-		if visible:
-			self._historyBox.show()
-		else:
-			self._historyBox.hide()
 
 	def load_notes(self, data = None):
 		_moduleLogger.info("load_notes params: pos:"+str(self._pos)+" noteid:"+str(self.noteId))
@@ -160,6 +142,40 @@ class Notizen(gtk.HBox):
 			self._db.saveNote(self.noteId, buf, self._categoryName)
 
 		self._topBox.define_this_category()
+
+	def show_history(self, *args):
+		if self.noteId == -1:
+			mbox =  gtk.MessageDialog(None, gtk.DIALOG_MODAL, gtk.MESSAGE_INFO, gtk.BUTTONS_OK, _("No note selected."))
+			response = mbox.run()
+			mbox.hide()
+			mbox.destroy()
+			return
+
+		rows = self._db.getNoteHistory(self.noteId)
+
+		import history
+		dialog = history.Dialog()
+
+		lastNoteStr = ""
+		for row in rows:
+			daten = row[4][1]
+			if daten != "" and lastNoteStr != daten:
+				lastNoteStr = daten
+				dialog.noteHistory.append([row[0], row[1], row[2], row[3], daten+"\n"])
+
+		dialog.vbox.show_all()
+		dialog.set_size_request(600, 380)
+
+		if dialog.run() == gtk.RESPONSE_ACCEPT:
+			print "saving"
+			self.save_note()
+			data = dialog.get_selected_row()
+			if data is not None:
+				self._db.speichereSQL(data[2], data[3].split(" <<Tren-ner>> "), rowid = self.noteId)
+				_moduleLogger.info("loading History")
+				self._update_noteslist()
+
+		dialog.destroy()
 
 	def _get_title(self, buf):
 		"""
@@ -204,7 +220,6 @@ class Notizen(gtk.HBox):
 		else:
 			self._pos = pos
 			self.noteId, pcdatum, self._categoryName, self._noteBody = self._db.loadNote(key)
-			self._historyStatusLabel.set_text(time.strftime(_("Last change: %d.%m.%y %H:%M"), time.localtime(pcdatum)))
 			buf = self._noteBodyView.get_buffer()
 			buf.set_text(self._noteBody)
 
@@ -241,38 +256,3 @@ class Notizen(gtk.HBox):
 			self._noteslist.remove_item(self._pos)
 			self._pos = -1
 			self._noteBodyView.get_buffer().set_text("")
-
-	@gtk_toolbox.log_exception(_moduleLogger)
-	def _on_show_history(self, widget = None, data = None, label = None):
-		if self.noteId == -1:
-			mbox =  gtk.MessageDialog(None, gtk.DIALOG_MODAL, gtk.MESSAGE_INFO, gtk.BUTTONS_OK, _("No note selected."))
-			response = mbox.run()
-			mbox.hide()
-			mbox.destroy()
-			return
-
-		rows = self._db.getNoteHistory(self.noteId)
-
-		import history
-		dialog = history.Dialog()
-
-		lastNoteStr = ""
-		for row in rows:
-			daten = row[4][1]
-			if daten != "" and lastNoteStr != daten:
-				lastNoteStr = daten
-				dialog.noteHistory.append([row[0], row[1], row[2], row[3], daten+"\n"])
-
-		dialog.vbox.show_all()
-		dialog.set_size_request(600, 380)
-
-		if dialog.run() == gtk.RESPONSE_ACCEPT:
-			print "saving"
-			self.save_note()
-			data = dialog.get_selected_row()
-			if data is not None:
-				self._db.speichereSQL(data[2], data[3].split(" <<Tren-ner>> "), rowid = self.noteId)
-				_moduleLogger.info("loading History")
-				self._update_noteslist()
-
-		dialog.destroy()

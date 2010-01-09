@@ -103,11 +103,11 @@ class QuicknoteProgram(hildonize.get_app_class()):
 
 			menu_items = gtk.MenuItem(_("Delete"))
 			categorymenu.append(menu_items)
-			menu_items.connect("activate", self._on_delete_category, None)
+			menu_items.connect("activate", self._on_delete_category)
 
 			menu_items = gtk.MenuItem(_("Move To Category"))
 			categorymenu.append(menu_items)
-			menu_items.connect("activate", self._on_move_category, None)
+			menu_items.connect("activate", self._on_move_category)
 
 			category_menu = gtk.MenuItem(_("Category"))
 			category_menu.show()
@@ -117,9 +117,13 @@ class QuicknoteProgram(hildonize.get_app_class()):
 
 			menu_items = gtk.MenuItem(_("Word Wrap"))
 			viewmenu.append(menu_items)
-			menu_items.connect("activate", self._on_toggle_word_wrap, None)
+			menu_items.connect("activate", self._on_toggle_word_wrap)
 
-			view_menu = gtk.MenuItem(_("View"))
+			menu_items = gtk.MenuItem(_("History"))
+			viewmenu.append(menu_items)
+			menu_items.connect("activate", self._on_show_history)
+
+			view_menu = gtk.MenuItem(_("Note"))
 			view_menu.show()
 			view_menu.set_submenu(viewmenu)
 
@@ -174,12 +178,16 @@ class QuicknoteProgram(hildonize.get_app_class()):
 		)
 		if hildonize.IS_FREMANTLE_SUPPORTED:
 			moveToCategoryButton = gtk.Button(_("Move To Category"))
-			moveToCategoryButton.connect("clicked", self._on_move_category, None)
+			moveToCategoryButton.connect("clicked", self._on_move_category)
 			menuBar.append(moveToCategoryButton)
 
 			deleteCategoryButton = gtk.Button(_("Delete Category"))
-			deleteCategoryButton.connect("clicked", self._on_delete_category, None)
+			deleteCategoryButton.connect("clicked", self._on_delete_category)
 			menuBar.append(deleteCategoryButton)
+
+			historyButton= gtk.Button(_("Note History"))
+			historyButton.connect("clicked", self._on_show_history)
+			menuBar.append(historyButton)
 
 			menuBar.show_all()
 
@@ -278,10 +286,8 @@ class QuicknoteProgram(hildonize.get_app_class()):
 		self._isZoomEnabled = zoomEnabled
 		if zoomEnabled:
 			self._topBox.hide()
-			self._notizen.show_history_area(False)
 		else:
 			self._topBox.show()
-			self._notizen.show_history_area(True)
 
 	@gtk_toolbox.log_exception(_moduleLogger)
 	def _on_device_state_change(self, shutdown, save_unsaved_data, memory_low, system_inactivity, message, userData):
@@ -342,6 +348,10 @@ class QuicknoteProgram(hildonize.get_app_class()):
 				log = "".join(logLines)
 				self._clipboard.set_text(str(log))
 			return True
+
+	@gtk_toolbox.log_exception(_moduleLogger)
+	def _on_show_history(self, *args):
+		self._notizen.show_history()
 
 	@gtk_toolbox.log_exception(_moduleLogger)
 	def _on_view_sql_history(self, widget = None, data = None, data2 = None):

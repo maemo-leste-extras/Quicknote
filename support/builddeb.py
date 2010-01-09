@@ -22,6 +22,7 @@ __version__ = constants.__version__
 __build__ = constants.__build__
 __changelog__ = """
 0.7.10
+ * Moved history to the menu/appmenu
  * Ctrl+w/q to quit
 
 0.7.9
