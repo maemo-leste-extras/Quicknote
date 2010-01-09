@@ -26,6 +26,7 @@ class Search(gtk.HBox):
 		_moduleLogger.info("search, init")
 		gtk.HBox.__init__(self, homogeneous = False, spacing = 3)
 		self.connect("hide", self._on_hide)
+		self.connect("show", self._on_show)
 
 		label = gtk.Label(_("Search:  "))
 
@@ -52,6 +53,9 @@ class Search(gtk.HBox):
 
 	def _on_close(self, *args):
 		self.hide()
+
+	def _on_show(self, *args):
+		self._searchEntry.grab_focus()
 
 	def _on_hide(self, *args):
 		self._searchEntry.set_text("")
