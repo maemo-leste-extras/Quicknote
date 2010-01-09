@@ -40,6 +40,7 @@ import gtk_toolbox
 import speichern
 import kopfzeile
 import notizen
+import search
 import sync
 
 
@@ -67,7 +68,6 @@ class QuicknoteProgram(hildonize.get_app_class()):
 		self._wordWrapEnabled = False
 
 		self._window_in_fullscreen = False #The window isn't in full screen mode initially.
-		self._isZoomEnabled = False
 
 		self._db = speichern.Speichern()
 		self._syncDialog = None
@@ -101,13 +101,17 @@ class QuicknoteProgram(hildonize.get_app_class()):
 
 			categorymenu = gtk.Menu()
 
-			menu_items = gtk.MenuItem(_("Delete"))
+			menu_items = gtk.MenuItem(_("Search"))
 			categorymenu.append(menu_items)
-			menu_items.connect("activate", self._on_delete_category)
+			menu_items.connect("activate", self._on_toggle_search)
 
 			menu_items = gtk.MenuItem(_("Move To Category"))
 			categorymenu.append(menu_items)
 			menu_items.connect("activate", self._on_move_category)
+
+			menu_items = gtk.MenuItem(_("Delete"))
+			categorymenu.append(menu_items)
+			menu_items.connect("activate", self._on_delete_category)
 
 			category_menu = gtk.MenuItem(_("Category"))
 			category_menu.show()
@@ -151,18 +155,19 @@ class QuicknoteProgram(hildonize.get_app_class()):
 			vbox.pack_start(menuBar, False, False, 0)
 
 		#Create GUI elements
-		self._topBox = kopfzeile.Kopfzeile(self._db)
-		vbox.pack_start(self._topBox, False, False, 0)
+		self._category = kopfzeile.Kopfzeile(self._db)
+		self._search = search.Search()
+		self._notizen = notizen.Notizen(self._db, self._category, self._search)
 
-		self._notizen = notizen.Notizen(self._db, self._topBox)
-		vbox.pack_start(self._notizen, True, True, 0)
+		# notizen packs in the category
+		vbox.pack_start(self._notizen, expand = True, fill = True)
+		vbox.pack_start(self._search, expand = False, fill = True)
 
 		#Get the Main Window, and connect the "destroy" event
 		self._window = gtk.Window()
 		self._window.add(vbox)
 
 		self._on_toggle_word_wrap()
-		self.enable_zoom(True)
 
 		try:
 			os.makedirs(self._user_data)
@@ -177,17 +182,21 @@ class QuicknoteProgram(hildonize.get_app_class()):
 			menuBar,
 		)
 		if hildonize.IS_FREMANTLE_SUPPORTED:
-			moveToCategoryButton = gtk.Button(_("Move To Category"))
+			moveToCategoryButton = gtk.Button(_("Move Note"))
 			moveToCategoryButton.connect("clicked", self._on_move_category)
 			menuBar.append(moveToCategoryButton)
-
-			deleteCategoryButton = gtk.Button(_("Delete Category"))
-			deleteCategoryButton.connect("clicked", self._on_delete_category)
-			menuBar.append(deleteCategoryButton)
 
 			historyButton= gtk.Button(_("Note History"))
 			historyButton.connect("clicked", self._on_show_history)
 			menuBar.append(historyButton)
+
+			searchButton= gtk.Button(_("Search Category"))
+			searchButton.connect("clicked", self._on_toggle_search)
+			menuBar.append(searchButton)
+
+			deleteCategoryButton = gtk.Button(_("Delete Category"))
+			deleteCategoryButton.connect("clicked", self._on_delete_category)
+			menuBar.append(deleteCategoryButton)
 
 			menuBar.show_all()
 
@@ -211,10 +220,8 @@ class QuicknoteProgram(hildonize.get_app_class()):
 		self._window.connect("window-state-event", self._on_window_state_change)
 
 		self._window.show_all()
+		self._search.hide()
 		self._load_settings()
-
-	def main(self):
-		gtk.main()
 
 	def _save_settings(self):
 		config = ConfigParser.SafeConfigParser()
@@ -225,7 +232,6 @@ class QuicknoteProgram(hildonize.get_app_class()):
 	def save_settings(self, config):
 		config.add_section(constants.__pretty_app_name__)
 		config.set(constants.__pretty_app_name__, "wordwrap", str(self._wordWrapEnabled))
-		config.set(constants.__pretty_app_name__, "zoom", str(self._isZoomEnabled))
 		config.set(constants.__pretty_app_name__, "fullscreen", str(self._window_in_fullscreen))
 
 	def _load_settings(self):
@@ -236,7 +242,6 @@ class QuicknoteProgram(hildonize.get_app_class()):
 	def load_settings(self, config):
 		try:
 			self._wordWrapEnabled = config.getboolean(constants.__pretty_app_name__, "wordwrap")
-			self._isZoomEnabled = config.getboolean(constants.__pretty_app_name__, "zoom")
 			self._window_in_fullscreen = config.getboolean(constants.__pretty_app_name__, "fullscreen")
 		except ConfigParser.NoSectionError, e:
 			warnings.warn(
@@ -248,8 +253,6 @@ class QuicknoteProgram(hildonize.get_app_class()):
 			)
 
 		self._notizen.set_wordwrap(self._wordWrapEnabled)
-
-		self.enable_zoom(self._isZoomEnabled)
 
 		if self._window_in_fullscreen:
 			self._window.fullscreen()
@@ -268,7 +271,7 @@ class QuicknoteProgram(hildonize.get_app_class()):
 			self._db.speichereDirekt('datenbank', fileName)
 
 			self._db.openDB()
-			self._topBox.load_categories()
+			self._category.load_categories()
 			self._notizen.load_notes()
 		dlg.destroy()
 
@@ -282,12 +285,11 @@ class QuicknoteProgram(hildonize.get_app_class()):
 		self._syncDialog.vbox.show_all()
 		syncer.connect("syncFinished", self._on_sync_finished)
 
-	def enable_zoom(self, zoomEnabled):
-		self._isZoomEnabled = zoomEnabled
-		if zoomEnabled:
-			self._topBox.hide()
+	def _toggle_search(self):
+		if self._search.get_property("visible"):
+			self._search.hide()
 		else:
-			self._topBox.show()
+			self._search.show()
 
 	@gtk_toolbox.log_exception(_moduleLogger)
 	def _on_device_state_change(self, shutdown, save_unsaved_data, memory_low, system_inactivity, message, userData):
@@ -323,19 +325,8 @@ class QuicknoteProgram(hildonize.get_app_class()):
 			else:
 				self._window.fullscreen ()
 			return True
-		elif (
-			event.keyval == gtk.keysyms.F7 or
-			event.keyval == gtk.keysyms.i and isCtrl
-		):
-			# Zoom In
-			self.enable_zoom(True)
-			return True
-		elif (
-			event.keyval == gtk.keysyms.F8 or
-			event.keyval == gtk.keysyms.o and isCtrl
-		):
-			# Zoom Out
-			self.enable_zoom(False)
+		elif event.keyval == gtk.keysyms.f and isCtrl:
+			self._toggle_search()
 			return True
 		elif (
 			event.keyval in (gtk.keysyms.w, gtk.keysyms.q) and
@@ -348,6 +339,9 @@ class QuicknoteProgram(hildonize.get_app_class()):
 				log = "".join(logLines)
 				self._clipboard.set_text(str(log))
 			return True
+
+	def _on_toggle_search(self, *args):
+		self._toggle_search()
 
 	@gtk_toolbox.log_exception(_moduleLogger)
 	def _on_show_history(self, *args):
@@ -405,7 +399,7 @@ class QuicknoteProgram(hildonize.get_app_class()):
 
 			noteid, pcdatum, category, note = self._db.loadNote(self._notizen.noteId)
 			self._db.saveNote(noteid, note, cat_id, pcdatum = None)
-			self._topBox.set_category() # force it to update
+			self._category.set_category() # force it to update
 		else:
 			mbox = gtk.MessageDialog(self._window, gtk.DIALOG_MODAL, gtk.MESSAGE_ERROR, gtk.BUTTONS_OK, _("No note selected."))
 			response = mbox.run()
@@ -414,7 +408,7 @@ class QuicknoteProgram(hildonize.get_app_class()):
 
 	@gtk_toolbox.log_exception(_moduleLogger)
 	def _on_delete_category(self, *args):
-		if self._topBox.get_category() == "%" or self._topBox.get_category() == "undefined":
+		if self._category.get_category() == "%" or self._category.get_category() == "undefined":
 			mbox = gtk.MessageDialog(None, gtk.DIALOG_MODAL, gtk.MESSAGE_ERROR, gtk.BUTTONS_OK, _("This category can not be deleted"))
 			try:
 				response = mbox.run()
@@ -430,11 +424,11 @@ class QuicknoteProgram(hildonize.get_app_class()):
 			mbox.hide()
 			mbox.destroy()
 		if response == gtk.RESPONSE_YES:
-			self._topBox.delete_this_category()
+			self._category.delete_this_category()
 
 	@gtk_toolbox.log_exception(_moduleLogger)
 	def _on_sync_finished(self, data = None, data2 = None):
-		self._topBox.load_categories()
+		self._category.load_categories()
 		self._notizen.load_notes()
 
 	@gtk_toolbox.log_exception(_moduleLogger)
@@ -487,7 +481,7 @@ def run_quicknote():
 	if hildonize.IS_HILDON_SUPPORTED:
 		gtk.set_application_name(constants.__pretty_app_name__)
 	app = QuicknoteProgram()
-	app.main()
+	gtk.main()
 
 
 if __name__ == "__main__":

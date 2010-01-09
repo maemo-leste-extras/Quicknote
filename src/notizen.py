@@ -39,9 +39,10 @@ _moduleLogger = logging.getLogger("notizen")
 
 class Notizen(gtk.HBox):
 
-	def __init__(self, db, topBox):
+	def __init__(self, db, category, search):
 		self._db = db
-		self._topBox = topBox
+		self._category = category
+		self._search = search
 		self.noteId = -1
 		self._pos = -1
 		self._noteBody = None #Last notetext
@@ -66,6 +67,7 @@ class Notizen(gtk.HBox):
 		buttonHBox.pack_start(button, expand = True, fill = True, padding = 3)
 
 		listVbox = gtk.VBox(homogeneous = False, spacing = 0)
+		listVbox.pack_start(self._category, expand = False, fill = True, padding = 3)
 		listVbox.pack_start(self._noteslist.widget, expand = True, fill = True, padding = 3)
 		listVbox.pack_start(buttonHBox, expand = False, fill = True, padding = 3)
 		self.pack_start(listVbox, expand = False, fill = True, padding = 3)
@@ -92,7 +94,8 @@ class Notizen(gtk.HBox):
 		self.pack_start(noteVbox, expand = True, fill = True, padding = 3)
 
 		self.load_notes()
-		self._topBox.connect("category_changed", self.load_notes)
+		self._category.connect("category_changed", self.load_notes)
+		self._search.connect("search_changed", self.load_notes)
 
 	def set_wordwrap(self, enableWordWrap):
 		if enableWordWrap:
@@ -106,8 +109,8 @@ class Notizen(gtk.HBox):
 		_moduleLogger.info("load_notes params: pos:"+str(self._pos)+" noteid:"+str(self.noteId))
 		self._noteslist.clear_items()
 
-		self._categoryName = self._topBox.get_category()
-		search = self._topBox.get_search_pattern()
+		self._categoryName = self._category.get_category()
+		search = self._search.get_search_pattern()
 		notes = self._db.searchNotes(search, self._categoryName)
 
 		if notes is not None:
@@ -141,7 +144,7 @@ class Notizen(gtk.HBox):
 		else:
 			self._db.saveNote(self.noteId, buf, self._categoryName)
 
-		self._topBox.define_this_category()
+		self._category.define_this_category()
 
 	def show_history(self, *args):
 		if self.noteId == -1:

@@ -22,7 +22,8 @@ __version__ = constants.__version__
 __build__ = constants.__build__
 __changelog__ = """
 0.7.10
- * Moved history to the menu/appmenu
+ * Moved history to the (app)menu
+ * Moved search to Ctrl+f and (app)menu
  * Switched category selection over to a touch selector entry, making it prettier and easier
  * Ctrl+w/q to quit
 

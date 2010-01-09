@@ -29,7 +29,7 @@ _moduleLogger = logging.getLogger("kopfzeile")
 
 class Kopfzeile(gtk.HBox):
 	"""
-	Category/Search box
+	Category box
 	"""
 
 	__gsignals__ = {
@@ -46,25 +46,12 @@ class Kopfzeile(gtk.HBox):
 		_moduleLogger.info("libkopfzeile, init")
 		gtk.HBox.__init__(self, homogeneous = False, spacing = 3)
 
-		categoryHBox = gtk.HBox()
-		self.pack_start(categoryHBox, expand = False, fill = True, padding = 0)
-
 		self._categories = [self.ALL_CATEGORIES, self.UNDEFINED_CATEGORY]
 		self._categorySelectorButton = gtk.Button(self.UNDEFINED_CATEGORY)
 		self._categorySelectorButton.connect("clicked", self._on_category_selector)
-		categoryHBox.pack_start(self._categorySelectorButton)
+		self.pack_start(self._categorySelectorButton, expand = True, fill = True)
 
 		self.load_categories()
-
-		searchHBox = gtk.HBox()
-		self.pack_start(searchHBox, expand = True, fill = True, padding = 0)
-
-		label = gtk.Label(_("Search:  "))
-		searchHBox.pack_start(label, expand = False, fill = True, padding = 0)
-
-		self._searchEntry = gtk.Entry()
-		searchHBox.pack_start(self._searchEntry, expand = True, fill = True, padding = 0)
-		self._searchEntry.connect("changed", self.search_entry_changed, None)
 
 	def get_category(self):
 		category = self._categorySelectorButton.get_label()
@@ -100,10 +87,6 @@ class Kopfzeile(gtk.HBox):
 			self._db.speichereSQL(sql, (self._get_category_index(), ))
 		self.emit("category_changed")
 
-	def search_entry_changed(self, widget = None, data = None):
-		_moduleLogger.debug("search_entry_changed")
-		self.emit("category_changed")
-
 	def define_this_category(self):
 		category = self.get_category()
 		catIndex = self._get_category_index()
@@ -127,9 +110,6 @@ class Kopfzeile(gtk.HBox):
 		if 1 < pos:
 			del self._categories[pos]
 			self._categorySelectorButton.set_label(self.ALL_CATEGORIES)
-
-	def get_search_pattern(self):
-		return self._searchEntry.get_text()
 
 	def load_categories(self):
 		sql = "CREATE TABLE categories (id TEXT , liste TEXT)"
