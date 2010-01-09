@@ -43,6 +43,7 @@ class Notizen(gtk.HBox):
 		self._db = db
 		self._category = category
 		self._search = search
+		self._search.connect("hide", self._on_search_close)
 		self.noteId = -1
 		self._pos = -1
 		self._noteBody = None #Last notetext
@@ -228,6 +229,11 @@ class Notizen(gtk.HBox):
 			buf.set_text(self._noteBody)
 
 		gobject.timeout_add(200, self._set_focus)
+
+	@gtk_toolbox.log_exception(_moduleLogger)
+	def _on_search_close(self, *args):
+		if self.noteId != -1:
+			self._noteBodyView.grab_focus()
 
 	@gtk_toolbox.log_exception(_moduleLogger)
 	def _on_note_changed(self, widget = None, data = None):
