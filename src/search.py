@@ -58,4 +58,7 @@ class Search(gtk.HBox):
 		self._searchEntry.grab_focus()
 
 	def _on_hide(self, *args):
-		self._searchEntry.set_text("")
+		# HACK Disabled for now.  Clearing this resets the note list which
+		# causes the current note to lose focus.
+		# self._searchEntry.set_text("")
+		pass
