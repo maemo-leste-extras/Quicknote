@@ -109,7 +109,7 @@ class Notizen(gtk.HBox):
 		_moduleLogger.info("load_notes params: pos:"+str(self._pos)+" noteid:"+str(self.noteId))
 		self._noteslist.clear_items()
 
-		self._categoryName = self._category.get_category()
+		self._categoryName = self._category.get_queryable_category()
 		search = self._search.get_search_pattern()
 		notes = self._db.searchNotes(search, self._categoryName)
 
@@ -143,8 +143,6 @@ class Notizen(gtk.HBox):
 			self._pos = self._noteslist.select_last_item()
 		else:
 			self._db.saveNote(self.noteId, buf, self._categoryName)
-
-		self._category.define_this_category()
 
 	def show_history(self, *args):
 		if self.noteId == -1:

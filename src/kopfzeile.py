@@ -53,17 +53,29 @@ class Kopfzeile(gtk.HBox):
 
 		self.load_categories()
 
-	def get_category(self):
+	def get_category_name(self):
 		category = self._categorySelectorButton.get_label()
-		if category == self.ALL_CATEGORIES:
-			category = "%"
-		if category == "":
-			category = self.UNDEFINED_CATEGORY
-			self._categorySelectorButton.set_label(category)
+		assert category != ""
 		return category
 
-	def _get_category_index(self):
-		categoryName = self._categorySelectorButton.get_label()
+	def get_queryable_category(self):
+		category = self.get_category_name()
+		if category == self.ALL_CATEGORIES:
+			category = "%"
+		assert category != ""
+		return category
+
+	def get_categories(self):
+		return iter(self._categories)
+
+	def _get_this_category_index(self):
+		categoryName = self.get_category_name()
+		try:
+			return self._categories.index(categoryName)
+		except ValueError:
+			return -1
+
+	def _get_category_index(self, categoryName):
 		try:
 			return self._categories.index(categoryName)
 		except ValueError:
@@ -76,40 +88,40 @@ class Kopfzeile(gtk.HBox):
 			window,
 			"Categories",
 			self._categories,
-			self._categorySelectorButton.get_label(),
+			self.get_category_name(),
 		)
 		self.set_category(userSelection)
 
 	def set_category(self, categoryName = None):
-		if categoryName is not None and categoryName != self._categorySelectorButton.get_label():
-			self._categorySelectorButton.set_label(categoryName)
-			sql = "UPDATE categories SET liste = ? WHERE id = 1"
-			self._db.speichereSQL(sql, (self._get_category_index(), ))
+		if categoryName is not None:
+			if not categoryName:
+				categoryName = self.UNDEFINED_CATEGORY
+			if categoryName != self.get_category_name():
+				self.add_category(categoryName)
+				self._categorySelectorButton.set_label(categoryName)
+				sql = "UPDATE categories SET liste = ? WHERE id = 1"
+				self._db.speichereSQL(sql, (self._get_this_category_index(), ))
 		self.emit("category_changed")
 
-	def define_this_category(self):
-		category = self.get_category()
-		catIndex = self._get_category_index()
-		cats = self._categories[1:] # Skip ALL_CATEGORIES
-
-		if catIndex == -1 and category != "%":
-			self._categories.append(category)
-			sql = "INSERT INTO categories  (id, liste) VALUES (0, ?)"
-			self._db.speichereSQL(sql, (category, ))
-			self._categorySelectorButton.set_label(category)
+	def add_category(self, categoryName):
+		if categoryName in self._categories:
+			return
+		assert "%" not in categoryName, "Not sure, but maybe %s can't be in names"
+		self._categories.append(categoryName)
+		sql = "INSERT INTO categories  (id, liste) VALUES (0, ?)"
+		self._db.speichereSQL(sql, (categoryName, ))
 
 	def delete_this_category(self):
-		category = self.get_category()
+		category = self.get_category_name()
+		assert category not in (self.ALL_CATEGORIES, self.UNDEFINED_CATEGORY)
 
 		sql = "UPDATE notes SET category = ? WHERE category = ?"
 		self._db.speichereSQL(sql, (self.UNDEFINED_CATEGORY, category))
 		sql = "DELETE FROM categories WHERE liste = ?"
 		self._db.speichereSQL(sql, (category, ))
 
-		pos = self._get_category_index()
-		if 1 < pos:
-			del self._categories[pos]
-			self._categorySelectorButton.set_label(self.ALL_CATEGORIES)
+		self._categories.remove(category)
+		self.set_category(self.ALL_CATEGORIES)
 
 	def load_categories(self):
 		sql = "CREATE TABLE categories (id TEXT , liste TEXT)"
@@ -142,4 +154,4 @@ class Kopfzeile(gtk.HBox):
 		else:
 			self._categorySelectorButton.set_label(self.UNDEFINED_CATEGORY)
 
-		self._lastCategory = self._get_category_index()
+		self._lastCategory = self._get_this_category_index()

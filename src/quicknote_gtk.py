@@ -380,19 +380,28 @@ class QuicknoteProgram(hildonize.get_app_class()):
 		sql = "SELECT id, liste FROM categories WHERE id = 0 ORDER BY liste"
 		rows = self._db.ladeSQL(sql)
 
-		selectableCategories = [row[1] for row in rows]
-		selectableCategories[0:0] = [self._category.UNDEFINED_CATEGORY]
+		selectableCategories = list(self._category.get_categories())
+		selectableCategories.remove(self._category.ALL_CATEGORIES)
+		currentCategory = self._category.get_category_name()
+		if currentCategory == self._category.ALL_CATEGORIES:
+			currentCategory = selectableCategories[0]
 
-		newIndex = hildonize.touch_selector(self._window, "Move to", selectableCategories, 0)
-		cat_id = selectableCategories[newIndex]
+		newCategory = hildonize.touch_selector_entry(
+			self._window, "Move to", selectableCategories, currentCategory
+		)
 
+		self._category.add_category(newCategory)
 		noteid, pcdatum, category, note = self._db.loadNote(self._notizen.noteId)
-		self._db.saveNote(noteid, note, cat_id, pcdatum = None)
-		self._category.set_category() # force it to update
+		self._db.saveNote(noteid, note, newCategory, pcdatum = None)
+		self._category.set_category() # HACK force it to update
 
 	@gtk_toolbox.log_exception(_moduleLogger)
 	def _on_delete_category(self, *args):
-		if self._category.get_category() == "%" or self._category.get_category() == "undefined":
+		if (
+			self._category.get_category_name() in (
+				self._category.ALL_CATEGORIES, self._category.UNDEFINED_CATEGORY
+			)
+		):
 			mbox = gtk.MessageDialog(None, gtk.DIALOG_MODAL, gtk.MESSAGE_ERROR, gtk.BUTTONS_OK, _("This category can not be deleted"))
 			try:
 				response = mbox.run()

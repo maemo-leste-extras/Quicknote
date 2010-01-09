@@ -28,6 +28,7 @@ __changelog__ = """
  * Deleting empty notes no longer prompts the user
  * Cleaned up the history dialog a smidge
  * Ctrl+w/q to quit
+ * Bug fix: not very consistent when a category is visible in dialogs
 
 0.7.9
  * UI Tweak: Removed "New Note..." due to weirdness and duplicated behavior
