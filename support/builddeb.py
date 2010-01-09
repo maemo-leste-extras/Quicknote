@@ -110,7 +110,7 @@ def build_package(distribution):
 	p.prettyName = constants.__pretty_app_name__
 	p.description = __description__
 	p.bugTracker = "https://bugs.maemo.org/enter_bug.cgi?product=quicknote"
-	#p.upgradeDescription = __changelog__.split("\n\n", 1)[0]
+	p.upgradeDescription = __changelog__.split("\n\n", 1)[0]
 	p.author = __author__
 	p.mail = __email__
 	p.license = "gpl"
@@ -165,7 +165,6 @@ def build_package(distribution):
 			for (oldName, newName) in files
 		)
 	p["/usr/share/applications/hildon"] = ["quicknote.desktop"]
-	#p["/usr/share/dbus-1/services"] = ["quicknote.service"]
 	p["/usr/share/icons/hicolor/26x26/hildon"] = ["26x26-quicknote.png|quicknote.png"]
 	p["/usr/share/icons/hicolor/40x40/hildon"] = ["40x40-quicknote.png|quicknote.png"]
 	p["/usr/share/icons/hicolor/48x48/hildon"] = ["48x48-quicknote.png|quicknote.png"]
