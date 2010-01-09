@@ -25,6 +25,8 @@ __changelog__ = """
  * Moved history to the (app)menu
  * Moved search to Ctrl+f and (app)menu
  * Switched category selection over to a touch selector entry, making it prettier and easier
+ * Deleting empty notes no longer prompts the user
+ * Cleaned up the history dialog a smidge
  * Ctrl+w/q to quit
 
 0.7.9

@@ -157,7 +157,7 @@ class Notizen(gtk.HBox):
 		rows = self._db.getNoteHistory(self.noteId)
 
 		import history
-		dialog = history.Dialog()
+		dialog = history.HistorySelectionDialog()
 
 		lastNoteStr = ""
 		for row in rows:
@@ -169,16 +169,19 @@ class Notizen(gtk.HBox):
 		dialog.vbox.show_all()
 		dialog.set_size_request(600, 380)
 
-		if dialog.run() == gtk.RESPONSE_ACCEPT:
-			print "saving"
-			self.save_note()
-			data = dialog.get_selected_row()
-			if data is not None:
-				self._db.speichereSQL(data[2], data[3].split(" <<Tren-ner>> "), rowid = self.noteId)
-				_moduleLogger.info("loading History")
-				self._update_noteslist()
+		try:
+			userResponse = dialog.run()
 
-		dialog.destroy()
+			if userResponse == gtk.RESPONSE_ACCEPT:
+				self.save_note()
+				data = dialog.get_selected_row()
+				if data is not None:
+					self._db.speichereSQL(data[2], data[3].split(" <<Tren-ner>> "), rowid = self.noteId)
+					_moduleLogger.info("loading History")
+					self._update_noteslist()
+
+		finally:
+			dialog.destroy()
 
 	def _get_title(self, buf):
 		"""
@@ -247,13 +250,23 @@ class Notizen(gtk.HBox):
 
 	@gtk_toolbox.log_exception(_moduleLogger)
 	def _on_delete_note(self, widget = None, data = None):
-		if (self.noteId == -1):
+		if self.noteId == -1:
 			return
-		mbox = gtk.MessageDialog(None, gtk.DIALOG_MODAL, gtk.MESSAGE_WARNING, gtk.BUTTONS_YES_NO, _("Really delete?"))
-		response = mbox.run()
-		mbox.hide()
-		mbox.destroy()
-		if response == gtk.RESPONSE_YES:
+
+		doDeletion = False
+		if self._noteBodyView.get_buffer().get_char_count() == 0:
+			doDeletion = True
+		else:
+			mbox = gtk.MessageDialog(None, gtk.DIALOG_MODAL, gtk.MESSAGE_WARNING, gtk.BUTTONS_YES_NO, _("Really delete?"))
+			try:
+				response = mbox.run()
+			finally:
+				mbox.hide()
+				mbox.destroy()
+
+			doDeletion = response == gtk.RESPONSE_YES
+
+		if doDeletion:
 			self._db.delNote(self.noteId)
 			self.noteId = -1
 			self._noteslist.remove_item(self._pos)

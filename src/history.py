@@ -24,14 +24,14 @@ except NameError:
 _moduleLogger = logging.getLogger("history")
 
 
-class Dialog(gtk.Dialog):
+class HistorySelectionDialog(gtk.Dialog):
 
 	def __init__(self, daten = None):
-		super(Dialog, self).__init__(
+		super(HistorySelectionDialog, self).__init__(
 			_("History:"),
 			None,
 			gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-			(gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT, gtk.STOCK_OK, gtk.RESPONSE_ACCEPT),
+			(gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT, gtk.STOCK_SAVE, gtk.RESPONSE_ACCEPT),
 		)
 		self.set_position(gtk.WIN_POS_CENTER)
 
@@ -43,26 +43,22 @@ class Dialog(gtk.Dialog):
 			str #param schön
 		)
 
-		# create the TreeView using liststore
 		self._historyView = gtk.TreeView(self.noteHistory)
 		self._historyView.set_rules_hint(True)
-		# create a CellRenderers to render the data
-		self._timestampCell = gtk.CellRendererText()
-		self._noteCell = gtk.CellRendererText()
 
-		# create the TreeViewColumns to display the data
+		self._timestampCell = gtk.CellRendererText()
 		self._timestampColumn = gtk.TreeViewColumn(_('Timestamp'))
+		self._timestampColumn.pack_start(self._timestampCell, True)
+		self._timestampColumn.set_attributes(self._timestampCell, text = 1) #Spalten setzten hier!!!!
+
+		self._noteCell = gtk.CellRendererText()
 		self._noteColumn = gtk.TreeViewColumn(_('Note'))
+		self._noteColumn.pack_start(self._noteCell, True)
+		self._noteColumn.set_attributes(self._noteCell, text = 4)
+
 		# add columns to treeview
 		self._historyView.append_column(self._timestampColumn)
 		self._historyView.append_column(self._noteColumn)
-
-		# add the cells to the columns - 2 in the first
-		self._timestampColumn.pack_start(self._timestampCell, True)
-		self._noteColumn.pack_start(self._noteCell, True)
-		self._timestampColumn.set_attributes(self._timestampCell, text = 1) #Spalten setzten hier!!!!
-		self._noteColumn.set_attributes(self._noteCell, text = 4)
-
 		self._historyView.set_reorderable(False)
 
 		scrolled_window = gtk.ScrolledWindow()
