@@ -416,25 +416,21 @@ class QuicknoteProgram(hildonize.get_app_class()):
 	def _on_delete_category(self, *args):
 		if self._topBox.get_category() == "%" or self._topBox.get_category() == "undefined":
 			mbox = gtk.MessageDialog(None, gtk.DIALOG_MODAL, gtk.MESSAGE_ERROR, gtk.BUTTONS_OK, _("This category can not be deleted"))
-			response = mbox.run()
-			mbox.hide()
-			mbox.destroy()
+			try:
+				response = mbox.run()
+			finally:
+				mbox.hide()
+				mbox.destroy()
 			return
 
 		mbox = gtk.MessageDialog(None, gtk.DIALOG_MODAL, gtk.MESSAGE_WARNING, gtk.BUTTONS_YES_NO, _("Are you sure to delete the current category?"))
-		response = mbox.run()
-		mbox.hide()
-		mbox.destroy()
+		try:
+			response = mbox.run()
+		finally:
+			mbox.hide()
+			mbox.destroy()
 		if response == gtk.RESPONSE_YES:
-			sql = "UPDATE notes SET category = ? WHERE category = ?"
-			self._db.speichereSQL(sql, ("undefined", self._topBox.get_category()))
-			sql = "DELETE FROM categories WHERE liste = ?"
-			self._db.speichereSQL(sql, (self._topBox.get_category(), ))
-			model = self._topBox.categoryCombo.get_model()
-			pos = self._topBox.categoryCombo.get_active()
-			if (pos>1):
-				self._topBox.categoryCombo.remove_text(pos)
-				self._topBox.categoryCombo.set_active(0)
+			self._topBox.delete_this_category()
 
 	@gtk_toolbox.log_exception(_moduleLogger)
 	def _on_sync_finished(self, data = None, data2 = None):

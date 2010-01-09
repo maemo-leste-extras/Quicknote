@@ -92,7 +92,7 @@ class Notizen(gtk.HBox):
 		self.pack_start(noteVbox, expand = True, fill = True, padding = 3)
 
 		self.load_notes()
-		self._topBox.connect("reload_notes", self.load_notes)
+		self._topBox.connect("category_changed", self.load_notes)
 
 	def set_wordwrap(self, enableWordWrap):
 		if enableWordWrap:
