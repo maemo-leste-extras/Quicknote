@@ -331,7 +331,12 @@ class QuicknoteProgram(hildonize.get_app_class()):
 			# Zoom Out
 			self.enable_zoom(False)
 			return True
-		elif event.keyval == ord("l") and event.get_state() & gtk.gdk.CONTROL_MASK:
+		elif (
+			event.keyval in (gtk.keysyms.w, gtk.keysyms.q) and
+			event.get_state() & gtk.gdk.CONTROL_MASK
+		):
+			self._window.destroy()
+		elif event.keyval == gtk.keysyms.l and event.get_state() & gtk.gdk.CONTROL_MASK:
 			with open(constants._user_logpath_, "r") as f:
 				logLines = f.xreadlines()
 				log = "".join(logLines)
