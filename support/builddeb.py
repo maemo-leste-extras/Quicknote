@@ -23,6 +23,7 @@ __build__ = constants.__build__
 __changelog__ = """
 0.7.10
  * Moved history to the menu/appmenu
+ * Switched category selection over to a touch selector entry, making it prettier and easier
  * Ctrl+w/q to quit
 
 0.7.9

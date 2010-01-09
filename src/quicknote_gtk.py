@@ -405,7 +405,7 @@ class QuicknoteProgram(hildonize.get_app_class()):
 
 			noteid, pcdatum, category, note = self._db.loadNote(self._notizen.noteId)
 			self._db.saveNote(noteid, note, cat_id, pcdatum = None)
-			self._topBox.category_combo_changed()
+			self._topBox.set_category() # force it to update
 		else:
 			mbox = gtk.MessageDialog(self._window, gtk.DIALOG_MODAL, gtk.MESSAGE_ERROR, gtk.BUTTONS_OK, _("No note selected."))
 			response = mbox.run()
