@@ -7,9 +7,6 @@ import logging
 import gobject
 import gtk
 
-import gtk_toolbox
-import hildonize
-
 try:
 	_
 except NameError:
@@ -28,15 +25,23 @@ class Search(gtk.HBox):
 	def __init__(self):
 		_moduleLogger.info("search, init")
 		gtk.HBox.__init__(self, homogeneous = False, spacing = 3)
+		self.connect("hide", self._on_hide)
 
 		label = gtk.Label(_("Search:  "))
 
 		self._searchEntry = gtk.Entry()
 		self._searchEntry.connect("changed", self._on_search_entry_changed, None)
 
+		closeImage = gtk.Image()
+		closeImage.set_from_stock("gtk-close", gtk.ICON_SIZE_BUTTON)
+		closeSearch = gtk.Button()
+		closeSearch.set_image(closeImage)
+		closeSearch.connect("clicked", self._on_close)
+
 		searchHBox = gtk.HBox()
 		searchHBox.pack_start(label, expand = False, fill = False)
 		searchHBox.pack_start(self._searchEntry, expand = True, fill = True)
+		searchHBox.pack_start(closeSearch, expand = False, fill = False)
 		self.pack_start(searchHBox, expand = True, fill = True)
 
 	def get_search_pattern(self):
@@ -44,3 +49,9 @@ class Search(gtk.HBox):
 
 	def _on_search_entry_changed(self, widget = None, data = None):
 		self.emit("search_changed")
+
+	def _on_close(self, *args):
+		self.hide()
+
+	def _on_hide(self, *args):
+		self._searchEntry.set_text("")
