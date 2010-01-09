@@ -368,43 +368,27 @@ class QuicknoteProgram(hildonize.get_app_class()):
 
 	@gtk_toolbox.log_exception(_moduleLogger)
 	def _on_move_category(self, *args):
-		comboCategory = gtk.combo_box_new_text()
-		comboCategory.append_text('undefined')
-		sql = "SELECT id, liste FROM categories WHERE id = 0 ORDER BY liste"
-		rows = self._db.ladeSQL(sql)
-		for row in rows:
-			comboCategory.append_text(row[1])
-
-		dialog = gtk.Dialog(_("Choose category"), self._window, gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT, gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
-		try:
-			dialog.set_position(gtk.WIN_POS_CENTER)
-
-			dialog.vbox.pack_start(comboCategory, True, True, 0)
-			dialog.vbox.show_all()
-
-			userResponse = dialog.run()
-		finally:
-			dialog.destroy()
-
-		if userResponse != gtk.RESPONSE_ACCEPT:
+		if self._notizen.noteId == -1:
+			mbox = gtk.MessageDialog(self._window, gtk.DIALOG_MODAL, gtk.MESSAGE_ERROR, gtk.BUTTONS_OK, _("No note selected."))
+			try:
+				response = mbox.run()
+			finally:
+				mbox.hide()
+				mbox.destroy()
 			return
 
-		n = comboCategory.get_active()
-		if -1 < n and self._notizen.noteId != -1:
-			model = comboCategory.get_model()
-			active = comboCategory.get_active()
-			if active < 0:
-				return None
-			cat_id = model[active][0]
+		sql = "SELECT id, liste FROM categories WHERE id = 0 ORDER BY liste"
+		rows = self._db.ladeSQL(sql)
 
-			noteid, pcdatum, category, note = self._db.loadNote(self._notizen.noteId)
-			self._db.saveNote(noteid, note, cat_id, pcdatum = None)
-			self._category.set_category() # force it to update
-		else:
-			mbox = gtk.MessageDialog(self._window, gtk.DIALOG_MODAL, gtk.MESSAGE_ERROR, gtk.BUTTONS_OK, _("No note selected."))
-			response = mbox.run()
-			mbox.hide()
-			mbox.destroy()
+		selectableCategories = [row[1] for row in rows]
+		selectableCategories[0:0] = [self._category.UNDEFINED_CATEGORY]
+
+		newIndex = hildonize.touch_selector(self._window, "Move to", selectableCategories, 0)
+		cat_id = selectableCategories[newIndex]
+
+		noteid, pcdatum, category, note = self._db.loadNote(self._notizen.noteId)
+		self._db.saveNote(noteid, note, cat_id, pcdatum = None)
+		self._category.set_category() # force it to update
 
 	@gtk_toolbox.log_exception(_moduleLogger)
 	def _on_delete_category(self, *args):
