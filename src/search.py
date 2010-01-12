@@ -34,7 +34,7 @@ class Search(gtk.HBox):
 		self._searchEntry.connect("changed", self._on_search_entry_changed, None)
 
 		closeImage = gtk.Image()
-		closeImage.set_from_stock("gtk-close", gtk.ICON_SIZE_BUTTON)
+		closeImage.set_from_stock("gtk-close", gtk.ICON_SIZE_MENU)
 		closeSearch = gtk.Button()
 		closeSearch.set_image(closeImage)
 		closeSearch.connect("clicked", self._on_close)
