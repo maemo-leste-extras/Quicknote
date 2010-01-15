@@ -41,10 +41,6 @@ debug: $(OBJ)
 test: $(OBJ)
 	$(UNIT_TEST)
 
-package: clean $(OBJ) all
-	dpkg-buildpackage -rfakeroot 
-	dpkg -i ../$(PROJECT_NAME)_$(PROJECT_VERSION)_all.deb
-
 update_po: po/templates.pot
 	@for lang in $(basename $(notdir $(wildcard po/*.po))); do \
 		msgmerge -U --strict --no-wrap po/$$lang.po po/templates.pot; \
@@ -59,7 +55,7 @@ build_mo:
 		msgfmt --statistics -c -o locale/$$lang/LC_MESSAGES/$(TEXT_DOMAIN).mo po/$$lang.po; \
 	done
 
-build: $(OBJ) build_mo
+package: $(OBJ) build_mo
 	rm -Rf $(BUILD_PATH)
 
 	mkdir -p $(BUILD_PATH)/generic
