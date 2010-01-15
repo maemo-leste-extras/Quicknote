@@ -122,6 +122,7 @@ def build_package(distribution):
 		"python2.6 | python2.5",
 		"python-gtk2 | python2.5-gtk2",
 		"python-xml | python2.5-xml",
+		"python-dbus | python2.5-dbus",
 	])
 	maemoSpecificDepends = ", python-osso | python2.5-osso, python-hildon | python2.5-hildon"
 	p.depends += {
