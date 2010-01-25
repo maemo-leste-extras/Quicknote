@@ -51,6 +51,7 @@ except NameError:
 
 
 _moduleLogger = logging.getLogger("quicknote_gtk")
+PROFILE_STARTUP = False
 
 
 class QuicknoteProgram(hildonize.get_app_class()):
@@ -70,7 +71,6 @@ class QuicknoteProgram(hildonize.get_app_class()):
 		self._window_in_fullscreen = False #The window isn't in full screen mode initially.
 
 		self._db = speichern.Speichern()
-		self._syncDialog = None
 
 		#Create GUI main vbox
 		vbox = gtk.VBox(homogeneous = False, spacing = 0)
@@ -212,8 +212,6 @@ class QuicknoteProgram(hildonize.get_app_class()):
 			self._osso_c = None
 			self._deviceState = None
 
-		self._prepare_sync_dialog()
-
 		self._window.connect("delete-event", self._on_delete_event)
 		self._window.connect("destroy", self._on_destroy)
 		self._window.connect("key-press-event", self._on_key_press)
@@ -274,16 +272,6 @@ class QuicknoteProgram(hildonize.get_app_class()):
 			self._category.load_categories()
 			self._notizen.load_notes()
 		dlg.destroy()
-
-	def _prepare_sync_dialog(self):
-		self._syncDialog = gtk.Dialog(_("Sync"), None, gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
-
-		self._syncDialog.set_position(gtk.WIN_POS_CENTER)
-		syncer = sync.Sync(self._db, self._window, 50504)
-		self._syncDialog.vbox.pack_start(syncer, True, True, 0)
-		self._syncDialog.set_size_request(500, 350)
-		self._syncDialog.vbox.show_all()
-		syncer.connect("syncFinished", self._on_sync_finished)
 
 	def _toggle_search(self):
 		if self._search.get_property("visible"):
@@ -426,8 +414,17 @@ class QuicknoteProgram(hildonize.get_app_class()):
 
 	@gtk_toolbox.log_exception(_moduleLogger)
 	def _on_sync_notes(self, widget = None, data = None):
-		self._syncDialog.run()
-		self._syncDialog.hide()
+		syncer = sync.Sync(self._db, self._window, 50504)
+		syncer.connect("syncFinished", self._on_sync_finished)
+
+		syncDialog = gtk.Dialog(_("Sync"), None, gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+
+		syncDialog.set_position(gtk.WIN_POS_CENTER)
+		syncDialog.vbox.pack_start(syncer, True, True, 0)
+		syncDialog.set_size_request(500, 350)
+		syncDialog.vbox.show_all()
+		syncDialog.run()
+		syncDialog.hide()
 
 	@gtk_toolbox.log_exception(_moduleLogger)
 	def _on_toggle_word_wrap(self, *args):
@@ -474,7 +471,8 @@ def run_quicknote():
 	if hildonize.IS_HILDON_SUPPORTED:
 		gtk.set_application_name(constants.__pretty_app_name__)
 	app = QuicknoteProgram()
-	gtk.main()
+	if not PROFILE_STARTUP:
+		gtk.main()
 
 
 if __name__ == "__main__":
