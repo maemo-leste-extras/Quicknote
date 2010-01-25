@@ -21,6 +21,9 @@ __email__ = "n800@axique.net"
 __version__ = constants.__version__
 __build__ = constants.__build__
 __changelog__ = """
+0.7.11
+ * Tiny speed improvement to startup
+
 0.7.10
  * Moved history to the (app)menu
  * Moved search to Ctrl+f and (app)menu
