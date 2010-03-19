@@ -24,7 +24,7 @@ except NameError:
 	_ = lambda x: x
 
 
-_moduleLogger = logging.getLogger("kopfzeile")
+_moduleLogger = logging.getLogger(__name__)
 
 
 class Kopfzeile(gtk.HBox):

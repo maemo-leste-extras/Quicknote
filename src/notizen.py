@@ -34,7 +34,7 @@ except NameError:
 	_ = lambda x: x
 
 
-_moduleLogger = logging.getLogger("notizen")
+_moduleLogger = logging.getLogger(__name__)
 
 
 class Notizen(gtk.HBox):

@@ -24,7 +24,7 @@ except NameError:
 	_ = lambda x: x
 
 
-_moduleLogger = logging.getLogger("simple_list")
+_moduleLogger = logging.getLogger(__name__)
 
 
 class SimpleList(object):

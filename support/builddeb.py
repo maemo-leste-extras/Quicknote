@@ -130,30 +130,24 @@ def build_package(distribution):
 	maemoSpecificDepends = ", python-osso | python2.5-osso, python-hildon | python2.5-hildon"
 	p.depends += {
 		"debian": ", python-glade2",
-		"chinook": maemoSpecificDepends,
 		"diablo": maemoSpecificDepends,
 		"fremantle": maemoSpecificDepends + ", python-glade2",
-		"mer": maemoSpecificDepends + ", python-glade2",
 	}[distribution]
 	p.section = {
 		"debian": "editors",
-		"chinook": "accessories",
 		"diablo": "user/office",
 		"fremantle": "user/office",
-		"mer": "user/office",
 	}[distribution]
 	p.arch = "all"
 	p.urgency = "low"
-	p.distribution = "chinook diablo fremantle mer debian"
+	p.distribution = "diablo fremantle debian"
 	p.repository = "extras"
 	p.changelog = __changelog__
 	p.postinstall = __postinstall__
 	p.icon = {
 		"debian": "26x26-quicknote.png",
-		"chinook": "26x26-quicknote.png",
 		"diablo": "26x26-quicknote.png",
 		"fremantle": "48x48-quicknote.png", # Fremantle natively uses 48x48
-		"mer": "48x48-quicknote.png",
 	}[distribution]
 	p["/usr/bin"] = [ "quicknote.py" ]
 	for relPath, files in unflatten_files(find_files(".", "locale")).iteritems():

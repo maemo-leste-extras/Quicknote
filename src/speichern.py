@@ -24,7 +24,7 @@ except NameError:
 	_ = lambda x: x
 
 
-_moduleLogger = logging.getLogger("speichern")
+_moduleLogger = logging.getLogger(__name__)
 
 
 class Speichern(object):

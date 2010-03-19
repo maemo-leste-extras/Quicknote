@@ -75,18 +75,12 @@ package: $(OBJ) build_mo
 	cp support/py2deb.py $(BUILD_PATH)/generic
 	cp support/fake_py2deb.py $(BUILD_PATH)/generic
 
-	mkdir -p $(BUILD_PATH)/chinook
-	cp -R $(BUILD_PATH)/generic/* $(BUILD_PATH)/chinook
-	cd $(BUILD_PATH)/chinook ; python builddeb.py chinook
 	mkdir -p $(BUILD_PATH)/diablo
 	cp -R $(BUILD_PATH)/generic/* $(BUILD_PATH)/diablo
 	cd $(BUILD_PATH)/diablo ; python builddeb.py diablo
 	mkdir -p $(BUILD_PATH)/fremantle
 	cp -R $(BUILD_PATH)/generic/* $(BUILD_PATH)/fremantle
 	cd $(BUILD_PATH)/fremantle ; python builddeb.py fremantle
-	mkdir -p $(BUILD_PATH)/mer
-	cp -R $(BUILD_PATH)/generic/* $(BUILD_PATH)/mer
-	cd $(BUILD_PATH)/mer ; python builddeb.py mer
 	mkdir -p $(BUILD_PATH)/debian
 	cp -R $(BUILD_PATH)/generic/* $(BUILD_PATH)/debian
 	cd $(BUILD_PATH)/debian ; python builddeb.py debian
@@ -94,7 +88,6 @@ package: $(OBJ) build_mo
 upload:
 	dput fremantle-extras-builder $(BUILD_PATH)/fremantle/$(PROJECT_NAME)*.changes
 	dput diablo-extras-builder $(BUILD_PATH)/diablo/$(PROJECT_NAME)*.changes
-	dput chinook-extras-builder $(BUILD_PATH)/chinook/$(PROJECT_NAME)*.changes
 	cp $(BUILD_PATH)/debian/*.deb ../www/$(PROJECT_NAME).deb
 
 lint: $(OBJ)

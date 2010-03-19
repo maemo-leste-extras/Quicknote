@@ -13,7 +13,7 @@ import sys
 import logging
 import gettext
 
-_moduleLogger = logging.getLogger("quicknote")
+_moduleLogger = logging.getLogger(__name__)
 gettext.install('quicknote', unicode = 1)
 sys.path.append('/usr/lib/quicknote')
 

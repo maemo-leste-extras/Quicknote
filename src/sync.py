@@ -38,7 +38,7 @@ except NameError:
 	_ = lambda x: x
 
 
-_moduleLogger = logging.getLogger("sync")
+_moduleLogger = logging.getLogger(__name__)
 
 
 class ProgressDialog(gtk.Dialog):

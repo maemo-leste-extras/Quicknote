@@ -22,7 +22,7 @@ except NameError:
 	_ = lambda x: x
 
 
-_moduleLogger = logging.getLogger("sqldialog")
+_moduleLogger = logging.getLogger(__name__)
 
 
 class SqlDialog(gtk.Dialog):

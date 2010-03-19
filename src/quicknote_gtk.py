@@ -50,7 +50,7 @@ except NameError:
 	_ = lambda x: x
 
 
-_moduleLogger = logging.getLogger("quicknote_gtk")
+_moduleLogger = logging.getLogger(__name__)
 PROFILE_STARTUP = False
 
 
@@ -62,8 +62,6 @@ class QuicknoteProgram(hildonize.get_app_class()):
 	def __init__(self):
 		super(QuicknoteProgram, self).__init__()
 		self._clipboard = gtk.clipboard_get()
-
-		dblog = os.path.join(self._user_data, "quicknote.log")
 
 		_moduleLogger.info('Starting quicknote')
 		self._wordWrapEnabled = False
@@ -459,7 +457,7 @@ class QuicknoteProgram(hildonize.get_app_class()):
 		dialog.set_name(constants.__pretty_app_name__)
 		dialog.set_version(constants.__version__)
 		dialog.set_copyright("")
-		dialog.set_website("http://axique.de/index.php?f=Quicknote")
+		dialog.set_website("http://quicknote.garage.maemo.org")
 		comments = _("%s is a note taking program; it is optimised for quick save and search of notes") % constants.__pretty_app_name__
 		dialog.set_comments(comments)
 		dialog.set_authors(["Christoph Wurstle <n800@axique.net>", "Ed Page <eopage@byu.net> (Blame him for the most recent bugs)"])

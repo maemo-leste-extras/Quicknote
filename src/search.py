@@ -13,7 +13,7 @@ except NameError:
 	_ = lambda x: x
 
 
-_moduleLogger = logging.getLogger("search")
+_moduleLogger = logging.getLogger(__name__)
 
 
 class Search(gtk.HBox):
