@@ -240,7 +240,7 @@ class QuicknoteProgram(hildonize.get_app_class()):
 			self._wordWrapEnabled = config.getboolean(constants.__pretty_app_name__, "wordwrap")
 			self._window_in_fullscreen = config.getboolean(constants.__pretty_app_name__, "fullscreen")
 		except ConfigParser.NoSectionError, e:
-			_moduleLogger.infp(
+			_moduleLogger.info(
 				"Settings file %s is missing section %s" % (
 					self._user_settings,
 					e.section,
