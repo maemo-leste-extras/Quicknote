@@ -21,6 +21,10 @@ __email__ = "n800@axique.net"
 __version__ = constants.__version__
 __build__ = constants.__build__
 __changelog__ = """
+0.7.12
+ * Small bugfix for launch
+ * Some code cleanup
+
 0.7.11
  * Tiny speed improvement to startup
 

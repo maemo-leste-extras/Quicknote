@@ -184,7 +184,7 @@ class QuicknoteProgram(hildonize.get_app_class()):
 			moveToCategoryButton.connect("clicked", self._on_move_category)
 			menuBar.append(moveToCategoryButton)
 
-			historyButton= gtk.Button(_("Note History"))
+			historyButton = gtk.Button(_("Note History"))
 			historyButton.connect("clicked", self._on_show_history)
 			menuBar.append(historyButton)
 
