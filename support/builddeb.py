@@ -21,64 +21,9 @@ __email__ = "n800@axique.net"
 __version__ = constants.__version__
 __build__ = constants.__build__
 __changelog__ = """
-0.7.12
  * Small bugfix for launch
  * Some code cleanup
-
-0.7.11
- * Tiny speed improvement to startup
-
-0.7.10
- * Moved history to the (app)menu
- * Moved search to Ctrl+f and (app)menu
- * Switched category selection over to a touch selector entry, making it prettier and easier
- * Deleting empty notes no longer prompts the user
- * Cleaned up the history dialog a smidge
- * Ctrl+w/q to quit
- * Bug fix: not very consistent when a category is visible in dialogs
-
-0.7.9
- * UI Tweak: Removed "New Note..." due to weirdness and duplicated behavior
- * UI Tweak: Added App Menu to access some category functionality
- * Bugfix: Move To Category
- * Bugfix: Removed carriage return on Ctrl+Enter
- * Added .deb package support
-
-0.7.8
- * Spell checking (Desktop only)
- * Fixing the application title
- * Fremantle Support
- * Ctrl+i and Ctrl+o to zoom in/out the interface
- * Ctrl+enter to fullscreen app
- * Ctrl+l to copy to clipboard the application debug log
-
-0.7.7
- * Slight modifications to the note history and SQL dialogs
- * On zoom, also hiding the history status and button
- * Touched up the note list, making it ellipsize at the end rather than scroll
- * Storing of zoom, wordwrap, and fullscreen settings
-
-0.7.6
-  * Line-wrap
-  * Zoom
-
-0.7.4
-  * fixed small bugs
-  * move category
-
-0.7.3
-  * fixed small bugs
-  * move category
-
-0.7.2
-  * improved sync, fixed a small bug
-
-0.7.1
-  * improved sync
-
-0.7.0
-  * Initial Release.
-"""
+""".strip()
 
 
 __postinstall__ = """#!/bin/sh -e
