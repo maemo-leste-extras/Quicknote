@@ -21,8 +21,7 @@ __email__ = "n800@axique.net"
 __version__ = constants.__version__
 __build__ = constants.__build__
 __changelog__ = """
- * Small bugfix for launch
- * Some code cleanup
+* New icon
 """.strip()
 
 
@@ -94,9 +93,9 @@ def build_package(distribution):
 	p.changelog = __changelog__
 	p.postinstall = __postinstall__
 	p.icon = {
-		"debian": "26x26-quicknote.png",
-		"diablo": "26x26-quicknote.png",
-		"fremantle": "48x48-quicknote.png", # Fremantle natively uses 48x48
+		"debian": "24_quicknote.png",
+		"diablo": "32_quicknote.png",
+		"fremantle": "48_quicknote.png", # Fremantle natively uses 48x48
 	}[distribution]
 	p["/usr/bin"] = [ "quicknote.py" ]
 	for relPath, files in unflatten_files(find_files(".", "locale")).iteritems():
@@ -116,10 +115,10 @@ def build_package(distribution):
 			for (oldName, newName) in files
 		)
 	p["/usr/share/applications/hildon"] = ["quicknote.desktop"]
-	p["/usr/share/icons/hicolor/26x26/hildon"] = ["26x26-quicknote.png|quicknote.png"]
-	p["/usr/share/icons/hicolor/40x40/hildon"] = ["40x40-quicknote.png|quicknote.png"]
-	p["/usr/share/icons/hicolor/48x48/hildon"] = ["48x48-quicknote.png|quicknote.png"]
-	p["/usr/share/icons/hicolor/scalable/hildon"] = ["scale-quicknote.png|quicknote.png"]
+	p["/usr/share/icons/hicolor/24x24/hildon"] = ["24_quicknote.png|quicknote.png"]
+	p["/usr/share/icons/hicolor/32x32/hildon"] = ["32_quicknote.png|quicknote.png"]
+	p["/usr/share/icons/hicolor/48x48/hildon"] = ["48_quicknote.png|quicknote.png"]
+	p["/usr/share/icons/hicolor/72x72/hildon"] = ["72_quicknote.png|quicknote.png"]
 
 	if distribution == "debian":
 		print p
