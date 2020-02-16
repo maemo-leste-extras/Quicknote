@@ -1,0 +1,81 @@
+Source: quicknote
+Maintainer: Christoph Wurstle <n800@axique.net>
+Section: user/office
+Priority: extra
+Build-Depends: debhelper (>= 9)
+Standards-Version: 3.7.2
+
+Package: quicknote
+Architecture: all
+Depends: python2.7, python-gtk2, python-dbus, python-osso, python-hildon, python-glade2
+Recommends: 
+Description: Simple note taking application in a similar vein as PalmOS Memos
+ .
+ Homepage: http://quicknote.garage.maemo.org/
+XSBC-Maemo-Display-Name: Quicknote
+XSBC-Bugtracker: https://bugs.maemo.org/enter_bug.cgi?product=quicknote
+XSBC-Maemo-Icon-26:
+  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
+  RK5CYII=
