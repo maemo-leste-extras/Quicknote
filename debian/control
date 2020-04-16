@@ -2,7 +2,7 @@ Source: quicknote
 Maintainer: Christoph Wurstle <n800@axique.net>
 Section: user/office
 Priority: extra
-Build-Depends: debhelper (>= 9)
+Build-Depends: debhelper (>= 9), dh-python, python-all
 Standards-Version: 3.7.2
 
 Package: quicknote
