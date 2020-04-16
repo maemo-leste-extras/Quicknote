@@ -8,7 +8,7 @@ from distutils.core import setup
 setup(
 	name='quicknote',
 	version='1.0',
-	scripts=['src/quicknote.py'],
+	scripts=['src/quicknote'],
 	packages=['quicknote'],
 	package_dir={'quicknote': 'src/'},
 	data_files = [
